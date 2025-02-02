@@ -3,7 +3,7 @@
 namespace TasAndJet.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/v1/[controller]")]
 public class ApplicationController : ControllerBase
 {
 }

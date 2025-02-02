@@ -46,8 +46,21 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(300);
 
+        // Клиентские заказы
+        builder.HasMany(u => u.ClientOrders)
+            .WithOne(o => o.Client)
+            .HasForeignKey(o => o.ClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Водительские заказы
+        builder.HasMany(u => u.DriverOrders)
+            .WithOne(o => o.Driver)
+            .HasForeignKey(o => o.DriverId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Связь с ролью (Role)
-        builder.HasOne(user => user.Role)
+        builder
+            .HasOne(user => user.Role)
             .WithMany() // Связь "один ко многим" (если Role содержит коллекцию Users, замените на .WithMany(role => role.Users))
             .HasForeignKey("RoleId") // Внешний ключ RoleId
             .IsRequired()

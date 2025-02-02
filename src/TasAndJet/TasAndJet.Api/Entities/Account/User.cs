@@ -1,4 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
+using SharedKernel.Common;
+using TasAndJet.Api.Entities.Orders;
 
 namespace TasAndJet.Api.Entities.Account;
 
@@ -39,9 +41,11 @@ public class User
     public string Address { get; set; }
     public Role Role { get; set; }
     
-    
-    //TODO
-    public static Result<User> CreateUser(
+    private readonly List<Order> _clientOrders = [];
+    private readonly List<Order> _driverOrders = [];
+    public IReadOnlyCollection<Order> ClientOrders => _clientOrders.AsReadOnly();
+    public IReadOnlyCollection<Order> DriverOrders => _driverOrders.AsReadOnly();
+    public static User CreateUser(
         Guid id,
         string firstName, 
         string lastName,
@@ -52,6 +56,17 @@ public class User
         string address,
         Role role)
     {
+        
         return new User(id, firstName, lastName, email, password, phoneNumber, region, address, role);
+    }
+
+    public void AddClientOrder(Order order)
+    {
+        _clientOrders.Add(order);
+    }
+
+    public void AddDriverOrder(Order order)
+    {
+        _driverOrders.Add(order);
     }
 }

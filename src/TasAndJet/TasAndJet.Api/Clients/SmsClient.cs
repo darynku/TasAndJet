@@ -2,8 +2,6 @@
 using Infobip.Api.Client.Api;
 using Infobip.Api.Client.Model;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System.Text;
 using TasAndJet.Api.Infrastructure.Options;
 
 namespace TasAndJet.Api.Clients
@@ -24,21 +22,15 @@ namespace TasAndJet.Api.Clients
 
             var smsMessage = new SmsTextualMessage(
                 from: _smsOptions.SenderPhone,
-                destinations: new List<SmsDestination>
-                {
-                    new SmsDestination(to: phoneNumber)
-                },
+                destinations: [new SmsDestination(to: phoneNumber)],
                 text: message);
 
             var smsRequest = new SmsAdvancedTextualRequest(
-                messages: new List<SmsTextualMessage>
-                {
-                    smsMessage
-                });
+                messages: [smsMessage]);
 
             try
             {
-                var smsResponse = await smsApi.SendSmsMessageAsync(smsRequest, cancellationToken);
+                await smsApi.SendSmsMessageAsync(smsRequest, cancellationToken);
                 logger.LogInformation("SMS sent to {PhoneNumber} with message {Message}", phoneNumber, message);
             }
             catch (ApiException ex)

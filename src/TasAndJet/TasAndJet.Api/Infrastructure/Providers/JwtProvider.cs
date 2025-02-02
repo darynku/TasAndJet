@@ -1,12 +1,11 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using TasAndJet.Api.Entities;
 using TasAndJet.Api.Entities.Account;
 using TasAndJet.Api.Infrastructure.Options;
+using TasAndJet.Api.Infrastructure.Providers.Abstract;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace TasAndJet.Api.Infrastructure.Providers;

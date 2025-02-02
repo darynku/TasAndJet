@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TasAndJet.Api.Entities;
 using TasAndJet.Api.Entities.Account;
+using TasAndJet.Api.Entities.Orders;
+using TasAndJet.Api.Entities.Services;
 
 namespace TasAndJet.Api.Infrastructure;
 
@@ -8,9 +9,11 @@ public class ApplicationDbContext(IConfiguration configuration) : DbContext
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
-    
     public DbSet<RefreshSession> RefreshSessions => Set<RefreshSession>();
-        
+    public DbSet<Order> Orders => Set<Order>(); 
+    public DbSet<Vehicle> Vehicles => Set<Vehicle>();
+    public DbSet<Service> Services => Set<Service>();
+    
     protected override void OnConfiguring(
         DbContextOptionsBuilder optionsBuilder)
     {

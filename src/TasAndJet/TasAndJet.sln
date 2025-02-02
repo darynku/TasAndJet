@@ -5,7 +5,12 @@ VisualStudioVersion = 17.12.35506.116 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasAndJet.Api", "TasAndJet.Api\TasAndJet.Api.csproj", "{BA7EB376-9389-49AD-86CE-9A4AD17B14BD}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{09846406-CCD3-432D-9B8B-89F7FB1D612F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{388B8340-484B-4F55-9B60-43D0D830199F}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel", "SharedKernel\SharedKernel.csproj", "{DD4C7DD8-544C-4228-BB33-3CDF07AFD8D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +22,10 @@ Global
 		{BA7EB376-9389-49AD-86CE-9A4AD17B14BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA7EB376-9389-49AD-86CE-9A4AD17B14BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA7EB376-9389-49AD-86CE-9A4AD17B14BD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{09846406-CCD3-432D-9B8B-89F7FB1D612F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{09846406-CCD3-432D-9B8B-89F7FB1D612F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{09846406-CCD3-432D-9B8B-89F7FB1D612F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{09846406-CCD3-432D-9B8B-89F7FB1D612F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD4C7DD8-544C-4228-BB33-3CDF07AFD8D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD4C7DD8-544C-4228-BB33-3CDF07AFD8D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD4C7DD8-544C-4228-BB33-3CDF07AFD8D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD4C7DD8-544C-4228-BB33-3CDF07AFD8D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

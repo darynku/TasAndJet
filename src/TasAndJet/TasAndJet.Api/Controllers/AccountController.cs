@@ -1,10 +1,15 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using TasAndJet.Api.Applications.Handlers.Login;
-using TasAndJet.Api.Applications.Handlers.Register;
+using SharedKernel.Common;
+using TasAndJet.Api.Applications.Handlers.Accounts.Get;
+using TasAndJet.Api.Applications.Handlers.Accounts.Login;
+using TasAndJet.Api.Applications.Handlers.Accounts.Register;
+using TasAndJet.Api.Applications.Handlers.Accounts.SendSmsCode;
+using TasAndJet.Api.Applications.Handlers.Accounts.VerifyCode;
 using TasAndJet.Api.Clients;
 using TasAndJet.Api.Contracts.Data;
+using TasAndJet.Api.Contracts.Data.Accounts;
 
 namespace TasAndJet.Api.Controllers;
 
@@ -14,15 +19,19 @@ public class AccountController(
     IDistributedCache cache) : ApplicationController
 {
     [HttpPost("register")]
-    public async Task<ActionResult> Register(RegisterData data, CancellationToken cancellationToken)
+    public async Task<ActionResult> Register([FromBody] RegisterData data, CancellationToken cancellationToken)
     {
         var command = new RegisterUserCommand(data);
         var result = await mediator.Send(command, cancellationToken);
+        if (result.IsFailure)
+        {
+            return result.Error.ToResponse();
+        }
         return Ok(result);
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult> Login(LoginData data, CancellationToken cancellationToken)
+    public async Task<ActionResult> Login([FromBody] LoginData data, CancellationToken cancellationToken)
     {
         var command = new LoginUserCommand(data);
         var result = await mediator.Send(command, cancellationToken);
@@ -30,38 +39,30 @@ public class AccountController(
     }
 
     [HttpPost("send-2fa-code")]
-    public async Task<IActionResult> SendTwoFactorCode([FromBody] string phoneNumber)
+    public async Task<IActionResult> SendTwoFactorCode([FromBody] SendSmsData data, CancellationToken cancellationToken)
     {
-      
-        var verificationCode = GenerateVerificationCode();
-        await cache.SetStringAsync(phoneNumber, verificationCode, new DistributedCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-        });
-
-        var message = $"Your verification code is {verificationCode}.";
-        await smsClient.SendSmsAsync(phoneNumber, message, CancellationToken.None);
-
-        return Ok("Verification code sent.");
+        var command = new SendSmsCodeCommand(data);
+        var result = await mediator.Send(command, cancellationToken);
+        return Ok(result);
     }
 
     [HttpPost("verify-2fa")]
-    public async Task<IActionResult> VerifyTwoFactorCode([FromBody] string code, [FromHeader] string phoneNumber)
+    public async Task<IActionResult> VerifyTwoFactorCode([FromBody] VerifyCodeData data, CancellationToken cancellationToken)
     {
-        // Получение кода из кэша
-        var storedCode = await cache.GetStringAsync(phoneNumber);
-
-        if (storedCode == null || storedCode != code)
+        var command = new VerifyCodeCommand(data);
+        var result = await mediator.Send(command, cancellationToken);
+        if (result is false)
         {
-            return Unauthorized("Invalid or expired verification code.");
+            return Unauthorized("Неправильный код или имтек срок действия");
         }
-        await cache.RemoveAsync(phoneNumber);
-        return Ok("Authentication successful.");
+        return Ok(result);
     }
 
-    private string GenerateVerificationCode()
+    [HttpGet("users")]
+    public async Task<IActionResult> GetUsers([FromQuery] GetUsersQuery query,CancellationToken cancellationToken)
     {
-        var random = new Random();
-        return random.Next(100000, 999999).ToString(); // Генерация случайного 6-значного кода
+        var result = await mediator.Send(query, cancellationToken);
+        return Ok(result);
     }
+    
 }
