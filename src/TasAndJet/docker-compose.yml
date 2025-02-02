@@ -1,0 +1,51 @@
+﻿services:
+  tasandjet.api:
+    image: tasandjetapi
+    build:
+      context: .
+      dockerfile: TasAndJet.Api/Dockerfile
+    ports:
+      - "5032:5032"
+    depends_on:
+      - postgres
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_HTTP_PORTS=5032
+      - ASPNETCORE_URLS=http://+:5032
+
+  postgres:
+    image: postgres:latest
+    container_name: postgresDB
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=tasandjet
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+  minio:
+    container_name: minio
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server --console-address ":9001" /data
+    restart: always
+
+volumes:
+  postgres_data:
+  minio_data:
