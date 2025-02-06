@@ -64,6 +64,17 @@ public static class Errors
         }
     }
 
+    public static class Reviews
+    {
+        public static Error InvalidOperation()
+        {
+            return Error.Validation("order.not.completed", "Order not completed");
+        }
+        public static Error ReviewNotNull()
+        {
+            return Error.Validation("review.not.null", "Нельзя менять отзыв");
+        }
+    }
     public static class Files
     {
         public static Error InvalidExtension()

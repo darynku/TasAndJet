@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TasAndJet.Api.Infrastructure;
+using TasAndJet.Infrastructure;
 
 namespace TasAndJet.Api.Extensions;
 

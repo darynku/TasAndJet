@@ -1,17 +1,19 @@
 ﻿using System.Text;
-using Amazon;
-using Amazon.Runtime;
 using Amazon.S3;
-using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Minio;
-using TasAndJet.Api.Infrastructure;
-using TasAndJet.Api.Infrastructure.Options;
-using TasAndJet.Api.Infrastructure.Providers;
-using TasAndJet.Api.Infrastructure.Providers.Abstract;
-using TasAndJet.Api.Infrastructure.Repositories;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using TasAndJet.Application;
+using TasAndJet.Application.Clients;
+using TasAndJet.Infrastructure;
+using TasAndJet.Infrastructure.Options;
+using TasAndJet.Infrastructure.Providers;
+using TasAndJet.Infrastructure.Providers.Abstract;
+using TasAndJet.Infrastructure.Repositories;
 
 namespace TasAndJet.Api;
 
@@ -23,12 +25,12 @@ public static class DependencyInjection
         services
             .AddDataAccess()
             .AddServices()
-            .AddMediator()
-            .AddValidators()
-            .AddCache()
+            .AddApplicationServices()
+            .AddClients(configuration)
             .AddS3Storage(configuration)
             .AddSwaggerConfiguration()
-            .AddJwtConfiguration(configuration);
+            .AddJwtConfiguration(configuration)
+            .AddMetrics();
         return services;
     }
 
@@ -49,22 +51,11 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddMediator(this IServiceCollection services)
+    private static IServiceCollection AddClients(
+        this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddMediatR(config => { config.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly); });
-
-        return services;
-    }
-
-    private static IServiceCollection AddValidators(this IServiceCollection services)
-    {
-        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
-        return services;
-    }
-
-    private static IServiceCollection AddCache(this IServiceCollection services)
-    {
-        services.AddDistributedMemoryCache();
+        services.Configure<SmsOptions>(configuration.GetSection("SmsOptions"));
+        services.AddSingleton<ISmsClient, SmsClient>();
         return services;
     }
 
@@ -133,7 +124,7 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddJwtConfiguration(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddJwtConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
 
@@ -158,4 +149,30 @@ public static class DependencyInjection
         services.AddAuthorization();
         return services;
     }
+
+    private static IServiceCollection AddMetrics(this IServiceCollection services)
+    {
+        const string serviceName = "TasAndJet.Api";
+
+        services.AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService(serviceName))
+            .WithMetrics(metrics => metrics
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddRuntimeInstrumentation()
+                .AddProcessInstrumentation()
+                .AddPrometheusExporter())
+            .WithTracing(tracing => tracing
+                .AddAspNetCoreInstrumentation()
+                .AddEntityFrameworkCoreInstrumentation(options =>
+                {
+                    options.SetDbStatementForText = true;
+                    options.SetDbStatementForStoredProcedure = true;
+                })
+                .AddOtlpExporter(o => o.Endpoint = new Uri("http://jaeger:4317")));
+        
+        return services;
+    }
+    
 }

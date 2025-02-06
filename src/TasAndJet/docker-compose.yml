@@ -5,13 +5,13 @@
       context: .
       dockerfile: TasAndJet.Api/Dockerfile
     ports:
-      - "5032:5032"
+      - "5001:5001"
     depends_on:
       - postgres
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
-      - ASPNETCORE_HTTP_PORTS=5032
-      - ASPNETCORE_URLS=http://+:5032
+      - ASPNETCORE_HTTP_PORTS=5001
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
 
   postgres:
     image: postgres:latest
@@ -40,12 +40,31 @@
     image: minio/minio
     ports:
       - "9000:9000"
-      - "9001:9001"
+      - "9001:9001" 
     volumes:
       - minio_data:/data
     command: server --console-address ":9001" /data
     restart: always
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - 4317:4317
+      - 4318:4318
+      - 16686:16686
+    restart: always
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+    
 volumes:
   postgres_data:
   minio_data:
+  redis_data:
