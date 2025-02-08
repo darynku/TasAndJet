@@ -4,44 +4,44 @@ using SharedKernel.Common;
 using TasAndJet.Infrastructure;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Validators;
 using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Domain.Entities.Reviews;
 
 namespace TasAndJet.Application.Applications.Handlers.Reviews.Create;
 
-public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, Result<Guid, Error>>
+public class CreateReviewCommandHandler(
+    ApplicationDbContext context,
+    IValidator<CreateReviewCommand> validator) : IRequestHandler<CreateReviewCommand, UnitResult<ErrorList>>
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public CreateReviewCommandHandler(ApplicationDbContext dbContext)
+    public async Task<UnitResult<ErrorList>> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
     {
-        _dbContext = dbContext;
-    }
-
-    public async Task<Result<Guid, Error>> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
-    {
-        // Проверка существования заказа и водителя
-        var order = await _dbContext.Orders.FirstOrDefaultAsync(x => x.Id == request.OrderId, cancellationToken);
+        var validate = await validator.ValidateAsync(request, cancellationToken);
+        if (!validate.IsValid)
+            return validate.ToList();
+        
+        var order = await context.Orders.FirstOrDefaultAsync(x => x.Id == request.OrderId, cancellationToken);
         if (order == null)
-            return Result.Failure<Guid, Error>(Errors.General.NotFound(request.OrderId, "Заказ не найден."));
-
+            return Errors.General.NotFound(null, "order").ToErrorList();
+        
         if (order.Status != OrderStatus.Completed)
-            return Result.Failure<Guid, Error>(Errors.General.ValueIsInvalid("Нельзя оставить отзыв на незавершённый заказ.")); 
+            return Errors.General.ValueIsInvalid("Нельзя оставить отзыв на незавершённый заказ.").ToErrorList(); 
 
         // Проверка существующего отзыва
-        var existingReview = await _dbContext.Reviews
+        var existingReview = await context.Reviews
             .AnyAsync(r => r.OrderId == request.OrderId, cancellationToken);
 
         if (existingReview)
-            return Result.Failure<Guid, Error>(Errors.Reviews.InvalidOperation());
+            return Errors.Reviews.InvalidOperation().ToErrorList();
 
         // Создание отзыва
         var review = Review.Create(request.Id, request.ClientId, request.DriverId, request.OrderId, request.Comment, request.Rating);
 
-        await _dbContext.Reviews.AddAsync(review, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await context.Reviews.AddAsync(review, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success<Guid, Error>(review.Id);
+        return Result.Success<ErrorList>();
     }
 }

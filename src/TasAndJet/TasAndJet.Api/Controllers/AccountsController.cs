@@ -24,7 +24,7 @@ public class AccountsController(
         {
             return result.Error.ToResponse();
         }
-        return Ok(result);
+        return Ok();
     }
 
     [HttpPost("login")]

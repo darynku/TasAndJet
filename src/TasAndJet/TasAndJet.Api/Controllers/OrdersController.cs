@@ -1,9 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Common;
+using TasAndJet.Application.Applications.Handlers.Orders.ChangeStatus;
 using TasAndJet.Application.Applications.Handlers.Orders.Create;
 using TasAndJet.Application.Applications.Handlers.Orders.GetById;
 using TasAndJet.Contracts.Data.Orders;
+using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Infrastructure.Providers;
 using TasAndJet.Infrastructure.Providers.Abstract;
 
@@ -46,5 +48,18 @@ public class OrdersController(
             return NotFound(Envelope.Error(result.Error));
         
         return Ok(result.Value);
+    }
+
+    [HttpPut("{orderId:guid}/status")]
+    public async Task<IActionResult> UpdateOrderStatus(
+        [FromRoute] Guid orderId, 
+        [FromBody] ChangeStatusData data,
+        CancellationToken cancellationToken)
+    {
+        var command = new ChangeStatusCommand(orderId, data);
+        var result = await mediator.Send(command, cancellationToken);
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+        return Ok();
     }
 }

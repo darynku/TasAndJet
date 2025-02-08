@@ -75,6 +75,19 @@ public static class Errors
             return Error.Validation("review.not.null", "Нельзя менять отзыв");
         }
     }
+    
+    public static class Orders
+    {
+        public static Error InvalidStatus()
+        {
+            return Error.Validation("status.invalid", "Неверный статус заказа");
+        }
+
+        public static Error CantCancel()
+        {
+            return Error.Validation("order.is.canceled", "Нельзя изменить статус отмененного заказа.");
+        }
+    }
     public static class Files
     {
         public static Error InvalidExtension()

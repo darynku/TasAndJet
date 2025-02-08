@@ -15,7 +15,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
     app.UseSwagger();
     app.UseSwaggerUI();
     await app.AddMigrationAsync();
-    app.UseOpenTelemetryPrometheusScrapingEndpoint();
 }
 
 app.UseAuthentication();

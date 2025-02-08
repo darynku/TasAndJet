@@ -76,6 +76,34 @@ public class Order
             service);
     }
 
+    public UnitResult<Error> ChangeStatus(OrderStatus newStatus)
+    {
+        if (Status == OrderStatus.Completed)
+            return Errors.Orders.InvalidStatus();
+
+        if (Status == OrderStatus.Canceled)
+            return Errors.Orders.CantCancel();
+        
+        if (newStatus == OrderStatus.Canceled)
+        {
+            Status = OrderStatus.Canceled;
+            return Result.Success<Error>();
+        }
+
+        if (!IsValidTransition(Status, newStatus))
+            return Errors.Orders.InvalidStatus();
+
+        Status = newStatus;
+        return Result.Success<Error>();
+    }
+
+    private static bool IsValidTransition(OrderStatus current, OrderStatus next)
+    {
+        return (current == OrderStatus.Created && next == OrderStatus.Assigned) ||
+               (current == OrderStatus.Assigned && next == OrderStatus.Confirmed) ||
+               (current == OrderStatus.Confirmed && next == OrderStatus.Completed);
+    }
+
     public void AddReview(Review review)
     {
         Review = review;

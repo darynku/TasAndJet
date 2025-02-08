@@ -8,7 +8,7 @@ using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Infrastructure;
 
-public class ApplicationDbContext(IConfiguration configuration) : DbContext
+public class ApplicationDbContext(string connectionString) : DbContext
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
@@ -20,11 +20,10 @@ public class ApplicationDbContext(IConfiguration configuration) : DbContext
     protected override void OnConfiguring(
         DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(configuration.GetConnectionString("Default"));
+        optionsBuilder.UseNpgsql(connectionString);
         optionsBuilder.UseLoggerFactory(CreateLoggerFactory());
 
     }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 

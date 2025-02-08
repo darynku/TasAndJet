@@ -23,7 +23,7 @@ public static class DependencyInjection
         this IServiceCollection services, IConfiguration configuration)
     {
         services
-            .AddDataAccess()
+            .AddDataAccess(configuration)
             .AddServices()
             .AddApplicationServices()
             .AddClients(configuration)
@@ -34,11 +34,12 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddDataAccess(this IServiceCollection services)
+    private static IServiceCollection AddDataAccess(this IServiceCollection services, IConfiguration configuration)
     {
         services
             .AddScoped(typeof(IRepository<>), typeof(EntityFrameworkRepository<>))
-            .AddScoped<ApplicationDbContext>();
+            .AddScoped<ApplicationDbContext>(_ => 
+                new ApplicationDbContext(connectionString: configuration.GetConnectionString("Default")!));
 
         return services;
     }
@@ -162,7 +163,7 @@ public static class DependencyInjection
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()
                 .AddProcessInstrumentation()
-                .AddPrometheusExporter())
+                .AddConsoleExporter())
             .WithTracing(tracing => tracing
                 .AddAspNetCoreInstrumentation()
                 .AddEntityFrameworkCoreInstrumentation(options =>

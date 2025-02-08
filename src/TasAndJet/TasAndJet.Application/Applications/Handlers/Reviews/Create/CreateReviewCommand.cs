@@ -5,7 +5,7 @@ using MediatR;
 
 namespace TasAndJet.Application.Applications.Handlers.Reviews.Create;
 
-public class CreateReviewCommand : IRequest<Result<Guid, Error>>
+public class CreateReviewCommand : IRequest<UnitResult<ErrorList>>
 {
     public CreateReviewCommand(ReviewData data)
     {
