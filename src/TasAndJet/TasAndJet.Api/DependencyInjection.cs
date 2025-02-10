@@ -13,7 +13,6 @@ using TasAndJet.Infrastructure;
 using TasAndJet.Infrastructure.Options;
 using TasAndJet.Infrastructure.Providers;
 using TasAndJet.Infrastructure.Providers.Abstract;
-using TasAndJet.Infrastructure.Repositories;
 
 namespace TasAndJet.Api;
 
@@ -25,21 +24,19 @@ public static class DependencyInjection
         services
             .AddDataAccess(configuration)
             .AddServices()
-            .AddApplicationServices()
+            .AddApplicationServices(configuration)
             .AddClients(configuration)
             .AddS3Storage(configuration)
             .AddSwaggerConfiguration()
-            .AddJwtConfiguration(configuration)
+            .AddAuthConfiguration(configuration)
             .AddMetrics();
+        
         return services;
     }
 
     private static IServiceCollection AddDataAccess(this IServiceCollection services, IConfiguration configuration)
     {
-        services
-            .AddScoped(typeof(IRepository<>), typeof(EntityFrameworkRepository<>))
-            .AddScoped<ApplicationDbContext>(_ => 
-                new ApplicationDbContext(connectionString: configuration.GetConnectionString("Default")!));
+        services.AddScoped<ApplicationDbContext>();
 
         return services;
     }
@@ -56,7 +53,10 @@ public static class DependencyInjection
         this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<SmsOptions>(configuration.GetSection("SmsOptions"));
-        services.AddSingleton<ISmsClient, SmsClient>();
+        services.AddSingleton<ISmsSenderService, SmsSenderService>();
+
+        services.AddHttpClient<ISmsClient, SmsClient>();
+        
         return services;
     }
 
@@ -125,18 +125,23 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddJwtConfiguration(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddAuthConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
-
+        services.Configure<GoogleOptions>(configuration.GetSection(GoogleOptions.SectionName));
+        
         var jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>()
                          ?? throw new ApplicationException("JwtOptions not found");
 
+        var googleOptions = configuration.GetSection(GoogleOptions.SectionName).Get<GoogleOptions>() 
+                            ?? throw new ApplicationException("GoogleOptions not found");
+        
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            
         }).AddJwtBearer(authenticationScheme: JwtBearerDefaults.AuthenticationScheme, options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters()
@@ -146,6 +151,10 @@ public static class DependencyInjection
                 ValidateLifetime = false,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
             };
+        }).AddGoogle(options =>
+        {
+            options.ClientId = googleOptions.ClientId;
+            options.ClientSecret = googleOptions.ClientSecret;
         });
         services.AddAuthorization();
         return services;
@@ -163,7 +172,7 @@ public static class DependencyInjection
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()
                 .AddProcessInstrumentation()
-                .AddConsoleExporter())
+                .AddPrometheusExporter())
             .WithTracing(tracing => tracing
                 .AddAspNetCoreInstrumentation()
                 .AddEntityFrameworkCoreInstrumentation(options =>

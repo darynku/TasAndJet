@@ -4,9 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.VerifyCode;
 
-public class VerifyCodeCommandHandler(
-    ILogger<VerifyCodeCommandHandler> logger,
-    IDistributedCache cache) : IRequestHandler<VerifyCodeCommand, bool>
+public class VerifyCodeCommandHandler(IDistributedCache cache) : IRequestHandler<VerifyCodeCommand, bool>
 {
     public async Task<bool> Handle(VerifyCodeCommand request, CancellationToken cancellationToken)
     {

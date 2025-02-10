@@ -1,8 +1,6 @@
-﻿
-namespace TasAndJet.Application.Clients
+﻿namespace TasAndJet.Application.Clients;
+
+public interface ISmsClient
 {
-    public interface ISmsClient
-    {
-        Task SendSmsAsync(string phoneNumber, string message, CancellationToken cancellationToken = default);
-    }
+    Task SendSmsAsync(string phoneNumber, CancellationToken cancellationToken = default);
 }

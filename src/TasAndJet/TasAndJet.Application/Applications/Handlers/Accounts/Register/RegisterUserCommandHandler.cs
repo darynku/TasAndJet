@@ -5,6 +5,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Common;
+using SharedKernel.Validators;
+using TasAndJet.Contracts.Events;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Infrastructure;
 
@@ -13,12 +15,13 @@ namespace TasAndJet.Application.Applications.Handlers.Accounts.Register;
 public class RegisterUserCommandHandler(
     IValidator<RegisterUserCommand> validator,
     ApplicationDbContext context,
-    ILogger<RegisterUserCommandHandler> logger) : IRequestHandler<RegisterUserCommand, UnitResult<ErrorList>>
+    ILogger<RegisterUserCommandHandler> logger,
+    IPublishEndpoint publishEndpoint) : IRequestHandler<RegisterUserCommand, UnitResult<ErrorList>>
 {
 
     public async Task<UnitResult<ErrorList>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        await validator.ValidateAndThrowAsync(request, cancellationToken);
         
         var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
@@ -41,24 +44,27 @@ public class RegisterUserCommandHandler(
                 request.Region,
                 request.Address,
                 role);
-            
+
             
             await context.Users.AddAsync(user, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
             
+            
             await transaction.CommitAsync(cancellationToken);
+            
+            await publishEndpoint.Publish(new UserRegisteredEvent(user.PhoneNumber), cancellationToken);
             
             return Result.Success<ErrorList>();
             
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
             logger.LogError("Ошибка при регистрации пользователя: {@Email}, {@Phone} Ошибка: {@Message}",
-                request.Email, request.PhoneNumber, exception.Message);
+                request.Email, request.PhoneNumber, ex.Message);
             
             await transaction.RollbackAsync(cancellationToken);
 
-            return Error.Failure("register.user", "Ошибка при регистрации пользователя").ToErrorList();
+            return Error.Failure("register.user", $"Ошибка при регистрации пользователя: {ex.Message}").ToErrorList();
         }
     }
 }

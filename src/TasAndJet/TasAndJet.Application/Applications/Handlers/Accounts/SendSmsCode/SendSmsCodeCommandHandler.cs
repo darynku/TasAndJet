@@ -6,7 +6,7 @@ using TasAndJet.Application.Clients;
 namespace TasAndJet.Application.Applications.Handlers.Accounts.SendSmsCode;
 
 public class SendSmsCodeCommandHandler(
-    ISmsClient smsClient, 
+    ISmsSenderService smsSenderService, 
     ILogger<SendSmsCodeCommandHandler> logger,
     IDistributedCache cache) : IRequestHandler<SendSmsCodeCommand, bool>
 {
@@ -23,7 +23,7 @@ public class SendSmsCodeCommandHandler(
                 options: new DistributedCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5)), 
                 token: cancellationToken);
 
-            await smsClient.SendSmsAsync(request.PhoneNumber, message, cancellationToken);
+            await smsSenderService.SendSmsAsync(request.PhoneNumber, message, cancellationToken);
 
             return true;
         }

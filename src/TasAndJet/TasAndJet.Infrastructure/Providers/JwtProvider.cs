@@ -47,7 +47,10 @@ public class JwtProvider : IJwtProvider
     {
         var refreshSession = new RefreshSession
         {
-            User = user, ExpiresIn = DateTime.UtcNow.AddDays(30), CreatedAt = DateTime.UtcNow, RefreshToken = Guid.NewGuid(),
+            User = user, 
+            ExpiresIn = DateTime.UtcNow.AddDays(30), 
+            CreatedAt = DateTime.UtcNow,
+            RefreshToken = Guid.NewGuid(),
         };
 
         _context.Add(refreshSession);

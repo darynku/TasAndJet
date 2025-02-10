@@ -4,6 +4,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using SharedKernel.Common;
 using TasAndJet.Application.Applications.Handlers.Accounts.Get;
 using TasAndJet.Application.Applications.Handlers.Accounts.Login;
+using TasAndJet.Application.Applications.Handlers.Accounts.RefreshToken;
 using TasAndJet.Application.Applications.Handlers.Accounts.Register;
 using TasAndJet.Application.Applications.Handlers.Accounts.SendSmsCode;
 using TasAndJet.Application.Applications.Handlers.Accounts.VerifyCode;
@@ -11,9 +12,7 @@ using TasAndJet.Contracts.Data.Accounts;
 
 namespace TasAndJet.Api.Controllers;
 
-public class AccountsController(
-    IMediator mediator,
-    IDistributedCache cache) : ApplicationController
+public class AccountsController(IMediator mediator) : ApplicationController
 {
     [HttpPost("register")]
     public async Task<ActionResult> Register([FromBody] RegisterData data, CancellationToken cancellationToken)
@@ -53,6 +52,21 @@ public class AccountsController(
             return Unauthorized("Неправильный код или имтек срок действия");
         }
         return Ok(result);
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(command, cancellationToken);
+        if(result.IsFailure)
+            return result.Error.ToResponse();
+        return Ok(result.Value);
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    {
+        return Ok();
     }
 
     [HttpGet("users")]

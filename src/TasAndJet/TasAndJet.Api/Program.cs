@@ -5,8 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 //регистрация зависимостей 
-builder.Services.AddProgramDependencies(builder.Configuration);
 builder.Services.AddControllers();
+builder.Services.AddProgramDependencies(builder.Configuration);
 
 var app = builder.Build();
 
@@ -25,3 +25,7 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+
+internal partial class Program
+{
+}

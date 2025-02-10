@@ -1,47 +1,21 @@
-﻿using Infobip.Api.Client;
-using Infobip.Api.Client.Api;
-using Infobip.Api.Client.Model;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using TasAndJet.Infrastructure.Options;
+﻿using System.Net.Http.Json;
+using TasAndJet.Contracts.Data.Accounts;
 
-namespace TasAndJet.Application.Clients
+namespace TasAndJet.Application.Clients;
+
+public class SmsClient(HttpClient client) : ISmsClient
 {
-    public class SmsClient(ILogger<SmsClient> logger, IOptions<SmsOptions> smsOptions) : ISmsClient
+    public async Task SendSmsAsync(string phoneNumber, CancellationToken cancellationToken = default)
     {
-        private readonly SmsOptions _smsOptions = smsOptions.Value;
-
-        public async Task SendSmsAsync(string phoneNumber, string message, CancellationToken cancellationToken = default)
+        var data = new SendSmsData
         {
-            var configuration = new Configuration()
-            {
-                BasePath = _smsOptions.BaseUrl,
-                ApiKey = _smsOptions.ApiKey
-            };
-
-            var smsApi = new SmsApi(configuration);
-
-            var smsMessage = new SmsTextualMessage(
-                from: _smsOptions.SenderPhone,
-                destinations: [new SmsDestination(to: phoneNumber)],
-                text: message);
-
-            var smsRequest = new SmsAdvancedTextualRequest(
-                messages: [smsMessage]);
-
-            try
-            {
-                await smsApi.SendSmsMessageAsync(smsRequest, cancellationToken);
-                logger.LogInformation("SMS sent to {PhoneNumber} with message {Message}", phoneNumber, message);
-            }
-            catch (ApiException ex)
-            {
-                logger.LogError($"Error sending SMS to {phoneNumber} with message {message}. " +
-                    $"Error: {ex.Message}, Code: {ex.ErrorCode}, Headers: {ex.Headers}, Content: {ex.ErrorContent}");
-
-                throw;
-            }
-
-        }
+            PhoneNumber = phoneNumber
+        };
+        
+        var response = await client.PostAsJsonAsync("http://localhost:5001/api/Accounts/send-2fa-code", data, cancellationToken);
+        
+        if(!response.IsSuccessStatusCode || response is null)
+            throw new HttpRequestException($"Error sending Sms: {response.StatusCode}");
+        
     }
 }

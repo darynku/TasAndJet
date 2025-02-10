@@ -1,16 +1,21 @@
 ﻿using FluentValidation;
+using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TasAndJet.Application.Consumers;
+using TasAndJet.Infrastructure.Options;
 
 namespace TasAndJet.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services
             .AddMediator()
             .AddValidators()
-            .AddCache();
+            .AddCache()
+            .AddMessageBus(configuration);
         
         return services;
     }
@@ -31,5 +36,36 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
         return services;
     }
+    
+    private static IServiceCollection AddMessageBus(this IServiceCollection services, IConfiguration configuration)
+    {
+        var rabbitMqOptions = configuration.GetSection("RabbitMq").Get<RabbitMqOptions>() 
+                              ?? throw new ApplicationException(nameof(RabbitMqOptions));
+        
+        services.Configure<RabbitMqOptions>(configuration.GetSection("RabbitMq"));
+        
+        services.AddMassTransit(configure =>
+        {
+            configure.SetKebabCaseEndpointNameFormatter();
 
+            configure.AddConsumer<UserRegisteredEventConsumer>();
+            
+            configure.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(new Uri(rabbitMqOptions.Host), h =>
+                {
+                    h.Username(rabbitMqOptions.Username);
+                    h.Password(rabbitMqOptions.Password);
+                });
+
+                cfg.ReceiveEndpoint("user-registration-queue", e => // 👈 Явно укажи очередь
+                {
+                    e.ConfigureConsumer<UserRegisteredEventConsumer>(context);
+                });
+                cfg.ConfigureEndpoints(context);
+            });
+        });
+
+        return services;
+    }
 }

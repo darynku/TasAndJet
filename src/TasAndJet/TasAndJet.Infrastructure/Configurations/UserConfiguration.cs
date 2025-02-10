@@ -67,7 +67,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .OnDelete(DeleteBehavior.Restrict); // Указываем поведение при удалении
 
         // Индексы
-        builder.HasIndex(user => user.Email).IsUnique();
-        builder.HasIndex(user => user.PhoneNumber).IsUnique();
+        // builder.HasIndex(user => user.Email).IsUnique();
+        // builder.HasIndex(user => user.PhoneNumber).IsUnique();
     }
 }

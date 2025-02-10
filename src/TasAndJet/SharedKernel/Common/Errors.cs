@@ -76,6 +76,17 @@ public static class Errors
         }
     }
     
+    public static class Authentication
+    {
+        public static Error InvalidGoogleToken() =>
+            Error.Validation("auth.google.invalid", "Ошибка проверки Google токена");
+
+        public static Error UserNotFound() =>
+            Error.NotFound("auth.user.not.found", "Пользователь не найден");
+
+        public static Error InvalidVerificationCode() =>
+            Error.Validation("auth.code.invalid", "Неверный код подтверждения");
+    }
     public static class Orders
     {
         public static Error InvalidStatus()

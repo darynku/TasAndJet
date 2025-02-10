@@ -39,6 +39,7 @@ public class User
     public string Region { get; set; }
     public string Address { get; set; }
     public Role Role { get; set; }
+    public bool PhoneConfirmed { get; set; }
     
     private readonly List<Order> _clientOrders = [];
     private readonly List<Order> _driverOrders = [];

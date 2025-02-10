@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Domain.Entities.Orders;
@@ -8,7 +7,7 @@ using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Infrastructure;
 
-public class ApplicationDbContext(string connectionString) : DbContext
+public class ApplicationDbContext : DbContext
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
@@ -17,10 +16,9 @@ public class ApplicationDbContext(string connectionString) : DbContext
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
     public DbSet<Service> Services => Set<Service>();
     public DbSet<Review> Reviews => Set<Review>();
-    protected override void OnConfiguring(
-        DbContextOptionsBuilder optionsBuilder)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(connectionString);
+        optionsBuilder.UseNpgsql("Host=postgresDB;Port=5432;Database=tasandjet2;User ID=postgres;Password=123;Include Error Detail=true");
         optionsBuilder.UseLoggerFactory(CreateLoggerFactory());
 
     }
@@ -30,11 +28,10 @@ public class ApplicationDbContext(string connectionString) : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Role>()
             .HasData(
-            new Role(1, "Admin"),
-            new Role(2, "User"),
-            new Role(3, "Driver"),
-            new Role(4, "Customer"));
-
+                new Role(1, "Admin"),
+                new Role(2, "User"),
+                new Role(3, "Driver"));
+            
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 
