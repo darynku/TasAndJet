@@ -57,11 +57,7 @@ public static class DependencyInjection
                     h.Username(rabbitMqOptions.Username);
                     h.Password(rabbitMqOptions.Password);
                 });
-
-                cfg.ReceiveEndpoint("user-registration-queue", e => // 👈 Явно укажи очередь
-                {
-                    e.ConfigureConsumer<UserRegisteredEventConsumer>(context);
-                });
+                
                 cfg.ConfigureEndpoints(context);
             });
         });

@@ -31,7 +31,6 @@ public class GerOrdersQueryHandler(ApplicationDbContext context) : IRequestHandl
                 Service = new ServiceResponse()
                 {
                     Title = orderDto.Service.Title,
-                    Cost = orderDto.Service.Cost,
                     VehicleType = orderDto.Service.Vehicle.VehicleType,
                     PhotoUrl = orderDto.Service.Vehicle.PhotoUrl,
                     ServiceType = orderDto.Service.ServiceType

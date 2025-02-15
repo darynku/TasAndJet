@@ -1,6 +1,6 @@
 ﻿using MassTransit;
 using TasAndJet.Application.Clients;
-using TasAndJet.Contracts.Events;
+using TasAndJet.Application.Events;
 
 namespace TasAndJet.Application.Consumers;
 

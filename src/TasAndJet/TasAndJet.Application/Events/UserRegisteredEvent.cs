@@ -1,3 +1,3 @@
-﻿namespace TasAndJet.Contracts.Events;
+﻿namespace TasAndJet.Application.Events;
 
 public record UserRegisteredEvent(string PhoneNumber);

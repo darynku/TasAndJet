@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Common;
 using SharedKernel.Validators;
-using TasAndJet.Contracts.Events;
+using TasAndJet.Application.Events;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Infrastructure;
 

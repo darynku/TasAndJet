@@ -1,12 +1,14 @@
 ﻿using CSharpFunctionalExtensions;
 using SharedKernel.Common;
+using SharedKernel.Domain;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Domain.Entities.Reviews;
 using TasAndJet.Domain.Entities.Services;
+using TasAndJet.Domain.Events;
 
 namespace TasAndJet.Domain.Entities.Orders;
 
-public class Order
+public class Order : DomainEntity
 {
     private Order()
     {
@@ -20,7 +22,6 @@ public class Order
         string pickupAddress,
         string destinationAddress,
         DateTime orderDate,
-        OrderStatus status,
         Service service)
     {
         Id = id;
@@ -30,7 +31,7 @@ public class Order
         PickupAddress = pickupAddress;
         DestinationAddress = destinationAddress;
         OrderDate = orderDate;
-        Status = status;
+        Status = OrderStatus.Created;
         Service = service;
     }
 
@@ -51,7 +52,16 @@ public class Order
     public OrderStatus Status { get; set; }
     public Service Service { get; set; }
 
+    public string Amount  { get; set; }
+    public decimal CheckOut { get; set; }
     public Review? Review { get; set; }
+
+    public string? PaymentIntentId { get; private set; }
+
+    public void AssignPaymentIntent(string paymentIntentId)
+    {
+        PaymentIntentId = paymentIntentId;
+    }
 
     public static Order Create(
         Guid id,
@@ -61,7 +71,6 @@ public class Order
         string pickupAddress,
         string destinationAddress,
         DateTime orderDate,
-        OrderStatus status,
         Service service)
     {
         return new Order(
@@ -72,10 +81,48 @@ public class Order
             pickupAddress,
             destinationAddress,
             orderDate,
-            status,
             service);
     }
+    public void AddReview(Review review)
+    {
+        Review = review;
+    }
 
+    public void AssignDriverToOrder(Order order)
+    {
+        Status = OrderStatus.Assigned;
+    }
+
+    public UnitResult<Error> ConfirmOrder(Guid driverId)
+    {
+        if (DriverId != driverId)
+            return Errors.User.InvalidCredentials();
+        
+        if(Status != OrderStatus.Assigned)
+            return Errors.General.ValueIsInvalid("order.assigned.status");
+        
+        Status = OrderStatus.Confirmed;
+        
+        AddDomainEvent(new OrderConfirmedEvent(Id));
+        
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> CompleteOrder(Guid driverId)
+    {
+        if (DriverId != driverId)
+            return Errors.User.InvalidCredentials();
+        
+        if(Status != OrderStatus.Confirmed)
+            return Errors.General.ValueIsInvalid("order.confirmed.status");
+        
+        Status = OrderStatus.Completed;
+        
+        AddDomainEvent(new OrderCompletedEvent(Id));
+        
+        return UnitResult.Success<Error>();
+    }
+    
     public UnitResult<Error> ChangeStatus(OrderStatus newStatus)
     {
         if (Status == OrderStatus.Completed)
@@ -89,24 +136,9 @@ public class Order
             Status = OrderStatus.Canceled;
             return Result.Success<Error>();
         }
-
-        if (!IsValidTransition(Status, newStatus))
-            return Errors.Orders.InvalidStatus();
-
         Status = newStatus;
         return Result.Success<Error>();
     }
 
-    private static bool IsValidTransition(OrderStatus current, OrderStatus next)
-    {
-        return (current == OrderStatus.Created && next == OrderStatus.Assigned) ||
-               (current == OrderStatus.Assigned && next == OrderStatus.Confirmed) ||
-               (current == OrderStatus.Confirmed && next == OrderStatus.Completed);
-    }
-
-    public void AddReview(Review review)
-    {
-        Review = review;
-    }
 
 }

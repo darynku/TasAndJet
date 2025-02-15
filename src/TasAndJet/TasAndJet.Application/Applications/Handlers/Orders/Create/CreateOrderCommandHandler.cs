@@ -23,7 +23,7 @@ public class CreateOrderCommandHandler(
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
         var vehicle = Vehicle.Create(Guid.NewGuid(), request.VehicleType, request.PhotoUrl);
-        var service = Service.Create(Guid.NewGuid(), request.Title, request.Cost, vehicle, request.ServiceType);
+        var service = Service.Create(Guid.NewGuid(), request.Title, vehicle, request.ServiceType);
         var order = Order.Create(
             Guid.NewGuid(),
             client.Id,
@@ -32,13 +32,12 @@ public class CreateOrderCommandHandler(
             request.PickupAddress, 
             request.DestinationAddress, 
             request.OrderDate,
-            request.Status,
             service);
         
         await context.Orders.AddAsync(order, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     
-        logger.LogInformation("Заказ был создан успешно {@Id}, {@Date}", order.Id, order.OrderDate);
+        logger.LogInformation("Заказ был создан успешно {Id}, {Date}", order.Id, order.OrderDate);
     
         client.AddClientOrder(order);
         driver.AddDriverOrder(order);

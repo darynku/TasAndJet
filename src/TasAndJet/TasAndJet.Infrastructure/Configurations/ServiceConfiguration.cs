@@ -14,9 +14,9 @@ public class ServiceConfiguration : IEntityTypeConfiguration<Service>
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(s => s.Cost)
-            .IsRequired()
-            .HasPrecision(18, 2);
+        // builder.Property(s => s.Cost)
+        //     .IsRequired()
+        //     .HasPrecision(18, 2);
 
         builder.Property(s => s.ServiceType)
             .HasConversion<string>()

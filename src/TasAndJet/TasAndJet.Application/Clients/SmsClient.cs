@@ -15,7 +15,7 @@ public class SmsClient(HttpClient client) : ISmsClient
         var response = await client.PostAsJsonAsync("http://localhost:5001/api/Accounts/send-2fa-code", data, cancellationToken);
         
         if(!response.IsSuccessStatusCode || response is null)
-            throw new HttpRequestException($"Error sending Sms: {response.StatusCode}");
+            throw new HttpRequestException($"Error while sending sms: {response.Content}");
         
     }
 }
