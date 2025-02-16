@@ -10,29 +10,25 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace TasAndJet.Infrastructure.Providers;
 
-public class JwtProvider : IJwtProvider
+public class JwtProvider(IOptions<JwtOptions> jwtOptions, ApplicationDbContext context)
+    : IJwtProvider
 {
-    private readonly JwtOptions _jwtOptions;
-    private readonly ApplicationDbContext _context;
-    
-    public JwtProvider(IOptions<JwtOptions> jwtOptions, ApplicationDbContext context)
-    {
-        _context = context;
-        _jwtOptions = jwtOptions.Value;
-    }
+    private readonly JwtOptions _jwtOptions = jwtOptions.Value;
 
     public string GenerateAccessToken(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));
         var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        Claim[] claims =
-        [
-            new Claim("Id", user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role.Name)
-        ];
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.GivenName, user.FirstName),
+            new Claim(ClaimTypes.Surname, user.LastName),
+            new Claim(ClaimTypes.Role, user.Role.Name),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        };
 
         var token = new JwtSecurityToken(
             signingCredentials: signingCredentials,
@@ -53,8 +49,8 @@ public class JwtProvider : IJwtProvider
             RefreshToken = Guid.NewGuid(),
         };
 
-        _context.Add(refreshSession);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.Add(refreshSession);
+        await context.SaveChangesAsync(cancellationToken);
 
         return refreshSession.RefreshToken;
     }

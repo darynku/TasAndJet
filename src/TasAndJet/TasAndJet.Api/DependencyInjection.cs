@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using Amazon.S3;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -13,6 +15,7 @@ using TasAndJet.Infrastructure;
 using TasAndJet.Infrastructure.Options;
 using TasAndJet.Infrastructure.Providers;
 using TasAndJet.Infrastructure.Providers.Abstract;
+using GoogleOptions = TasAndJet.Infrastructure.Options.GoogleOptions;
 
 namespace TasAndJet.Api;
 
@@ -138,10 +141,15 @@ public static class DependencyInjection
         
         services.AddAuthentication(options =>
         {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            /*options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;*/
+
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme; // Google для вызова OAuth
+            options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // ✅ Используем куки
+
+
         }).AddJwtBearer(authenticationScheme: JwtBearerDefaults.AuthenticationScheme, options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters()
@@ -151,11 +159,13 @@ public static class DependencyInjection
                 ValidateLifetime = false,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
             };
-        }).AddGoogle(options =>
+        }).AddCookie()
+            .AddGoogle(options =>
         {
             options.ClientId = googleOptions.ClientId;
             options.ClientSecret = googleOptions.ClientSecret;
         });
+
         services.AddAuthorization();
         return services;
     }

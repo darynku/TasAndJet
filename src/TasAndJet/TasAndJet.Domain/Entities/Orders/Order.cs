@@ -56,12 +56,9 @@ public class Order : DomainEntity
     public decimal CheckOut { get; set; }
     public Review? Review { get; set; }
 
-    public string? PaymentIntentId { get; private set; }
-
-    public void AssignPaymentIntent(string paymentIntentId)
-    {
-        PaymentIntentId = paymentIntentId;
-    }
+    public string? StripePaymentIntentId { get; set; } // ID платежа
+    public string? StripeTransferId { get; set; } // ID перевода водителю
+    
 
     public static Order Create(
         Guid id,

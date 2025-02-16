@@ -9,14 +9,15 @@ public class User
     {
     }
     private User(
-        Guid id, 
-        string firstName, 
+        Guid id,
+        string firstName,
         string lastName,
         string email,
-        string passwordHash,
-        string phoneNumber, 
-        string region,
-        string address, 
+        string? passwordHash,
+        string? googleId,
+        string? phoneNumber,
+        string? region,
+        string? address,
         Role role)
     {
         Id = id;
@@ -24,44 +25,75 @@ public class User
         LastName = lastName;
         Email = email;
         PasswordHash = passwordHash;
+        GoogleId = googleId;
         PhoneNumber = phoneNumber;
         Region = region;
         Address = address;
         Role = role;
-    } 
+        PhoneConfirmed = false;
+    }
+ 
 
-    public Guid Id { get; set; }
-    public string FirstName { get; set; } 
-    public string LastName { get; set; }
-    public string Email { get; set; }
-    public string PasswordHash { get; set; }
-    public string PhoneNumber { get; set; }
-    public string Region { get; set; }
-    public string Address { get; set; }
-    public Role Role { get; set; }
-    public bool PhoneConfirmed { get; set; }
-    
+    public Guid Id { get; private set; }
+    public string FirstName { get; private set; } 
+    public string LastName { get; private set; }
+    public string Email { get; private set; }
+    public string? PasswordHash { get; private set; } // Nullable, так как у Google-пользователей нет пароля
+    public string? GoogleId { get; private set; } // Google ID пользователя
+    public string? PhoneNumber { get; private set; }
+    public string? Region { get; private set; }
+    public string? Address { get; private set; }
+    public Role Role { get; private set; }
+    public bool PhoneConfirmed { get; private set; }
+
+    // Stripe данные
+    public string? StripeCustomerId { get; private set; }
+    public string? StripePaymentMethodId { get; private set; }
+    public string? StripeAccountId { get; private set; }
+
     private readonly List<Order> _clientOrders = [];
     private readonly List<Order> _driverOrders = [];
     private readonly List<Review> _reviews = [];
+    
     public IReadOnlyCollection<Order> ClientOrders => _clientOrders.AsReadOnly();
     public IReadOnlyCollection<Order> DriverOrders => _driverOrders.AsReadOnly();
     public IReadOnlyCollection<Review> Reviews => _reviews.AsReadOnly();
+
     
     
+    // 🔹 Фабричный метод для регистрации через email+пароль
     public static User CreateUser(
         Guid id,
         string firstName, 
         string lastName,
         string email,
-        string password,
+        string passwordHash,
         string phoneNumber,
         string region,
         string address,
         Role role)
     {
-        
-        return new User(id, firstName, lastName, email, password, phoneNumber, region, address, role);
+        return new User(id, firstName, lastName, email, passwordHash, null, phoneNumber, region, address, role);
+    }
+
+    // 🔹 Фабричный метод для регистрации через Google
+    public static User CreateGoogleUser(
+        Guid id,
+        string firstName, 
+        string lastName,
+        string email,
+        string googleId,
+        Role role) // Пароль отсутствует
+    {
+        return new User(id, firstName, lastName, email, null, googleId, null, null, null, role);
+    }
+    
+    public void LinkGoogleAccount(string googleId)
+    {
+        if (!string.IsNullOrEmpty(GoogleId))
+            throw new InvalidOperationException("Google аккаунт уже привязан");
+
+        GoogleId = googleId;
     }
 
     public void AddReview(Review review)

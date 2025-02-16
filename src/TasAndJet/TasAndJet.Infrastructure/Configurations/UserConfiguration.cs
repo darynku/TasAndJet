@@ -17,57 +17,68 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         // Свойства
         builder.Property(user => user.Id)
             .IsRequired()
-            .ValueGeneratedNever(); // Указываем, что Id задается вручную
+            .ValueGeneratedNever(); // Id задается вручную
 
         builder.Property(user => user.FirstName)
             .IsRequired()
-            .HasMaxLength(100); // Ограничение длины строки
+            .HasMaxLength(100);
 
         builder.Property(user => user.LastName)
             .IsRequired()
             .HasMaxLength(100);
 
         builder.Property(user => user.Email)
-            .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(user => user.PasswordHash)
-            .IsRequired();
+        builder.Property(user => user.PasswordHash);
 
         builder.Property(user => user.PhoneNumber)
-            .IsRequired()
             .HasMaxLength(15);
 
         builder.Property(user => user.Region)
-            .IsRequired()
             .HasMaxLength(100);
 
         builder.Property(user => user.Address)
-            .IsRequired()
             .HasMaxLength(300);
 
-        // Клиентские заказы
+        // 🔹 Stripe данные
+        builder.Property(user => user.StripeCustomerId)
+            .HasMaxLength(50); // Ограничение на длину идентификатора
+
+        builder.Property(user => user.StripePaymentMethodId)
+            .HasMaxLength(50);
+
+        builder.Property(user => user.StripeAccountId)
+            .HasMaxLength(50);
+
+        // 🔹 Google данные
+        builder.Property(user => user.GoogleId)
+            .HasMaxLength(50);
+
+        // 🔹 Подтверждение телефона
+        builder.Property(user => user.PhoneConfirmed);
+
+        // 🔹 Клиентские заказы
         builder.HasMany(u => u.ClientOrders)
             .WithOne(o => o.Client)
             .HasForeignKey(o => o.ClientId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Водительские заказы
+        // 🔹 Водительские заказы
         builder.HasMany(u => u.DriverOrders)
             .WithOne(o => o.Driver)
             .HasForeignKey(o => o.DriverId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        // Связь с ролью (Role)
-        builder
-            .HasOne(user => user.Role)
-            .WithMany() // Связь "один ко многим" (если Role содержит коллекцию Users, замените на .WithMany(role => role.Users))
-            .HasForeignKey("RoleId") // Внешний ключ RoleId
+        
+        // 🔹 Связь с ролью
+        builder.HasOne(user => user.Role)
+            .WithMany() // Если Role содержит Users, заменить на .WithMany(role => role.Users)
+            .HasForeignKey("RoleId")
             .IsRequired()
-            .OnDelete(DeleteBehavior.Restrict); // Указываем поведение при удалении
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // Индексы
-        // builder.HasIndex(user => user.Email).IsUnique();
-        // builder.HasIndex(user => user.PhoneNumber).IsUnique();
+        // 🔹 Индексы (уникальность)
+        /*builder.HasIndex(user => user.Email).IsUnique();
+        builder.HasIndex(user => user.PhoneNumber).IsUnique();*/
     }
 }

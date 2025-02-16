@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using SharedKernel.Common;
 using TasAndJet.Application.Applications.Handlers.Accounts.Get;
+using TasAndJet.Application.Applications.Handlers.Accounts.Google;
 using TasAndJet.Application.Applications.Handlers.Accounts.Login;
 using TasAndJet.Application.Applications.Handlers.Accounts.RefreshToken;
 using TasAndJet.Application.Applications.Handlers.Accounts.Register;
@@ -12,7 +13,8 @@ using TasAndJet.Contracts.Data.Accounts;
 
 namespace TasAndJet.Api.Controllers;
 
-public class AccountsController(IMediator mediator) : ApplicationController
+public class AccountsController(IMediator mediator,
+    IHttpClientFactory httpClientFactory) : ApplicationController
 {
     [HttpPost("register")]
     public async Task<ActionResult> Register([FromBody] RegisterData data, CancellationToken cancellationToken)
@@ -75,5 +77,30 @@ public class AccountsController(IMediator mediator) : ApplicationController
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }
-    
+
+    [HttpPost("google")]
+    public async Task<ActionResult> GoogleLogin([FromBody] GoogleAuthCommand command,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(command, cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpGet("signin-google")]
+    public IActionResult Callback()
+    {
+        return Ok("Success");
+    }
+
+    [HttpPost("google-login-mediatr")]
+    public async Task<IActionResult> SignInWithGoogle([FromBody] GoogleAuthRequest request)
+    {
+        var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.RoleId));
+
+        return result.IsSuccess 
+            ? Ok(result.Value) 
+            : BadRequest(result.Error.Message);
+    }
+
+    public record GoogleAuthRequest(string GoogleToken, int RoleId);
 }
