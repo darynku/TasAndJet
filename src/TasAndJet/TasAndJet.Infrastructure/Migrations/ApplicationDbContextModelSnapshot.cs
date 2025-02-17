@@ -116,6 +116,7 @@ namespace TasAndJet.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("character varying(15)");
 

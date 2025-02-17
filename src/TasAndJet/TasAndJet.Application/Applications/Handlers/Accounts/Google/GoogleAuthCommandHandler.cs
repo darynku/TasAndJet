@@ -1,9 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
+using FluentValidation;
 using Google.Apis.Auth;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SharedKernel.Common;
+using TasAndJet.Application.Events;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Infrastructure;
@@ -15,13 +18,17 @@ namespace TasAndJet.Application.Applications.Handlers.Accounts.Google;
 public class GoogleAuthCommandHandler(
     IOptions<GoogleOptions> googleOptions,
     IJwtProvider jwtProvider,
-    ApplicationDbContext context)
+    ApplicationDbContext context,
+    IPublishEndpoint publishEndpoint,
+    IValidator<GoogleAuthCommand> validator)
     : IRequestHandler<GoogleAuthCommand, Result<TokenResponse, Error>>
 {
     private readonly GoogleOptions _googleOptions = googleOptions.Value;
 
     public async Task<Result<TokenResponse, Error>> Handle(GoogleAuthCommand request, CancellationToken cancellationToken)
     {
+        await validator.ValidateAndThrowAsync(request, cancellationToken);
+        
         GoogleJsonWebSignature.Payload payload;
         try
         {
@@ -41,10 +48,8 @@ public class GoogleAuthCommandHandler(
         
         if (user is null)
         {
-            // 🔹 Создаем нового пользователя с указанной ролью
-            user = User.CreateGoogleUser(Guid.NewGuid(), payload.GivenName, payload.FamilyName, payload.Email, payload.Subject, role);
+            user = User.CreateGoogleUser(Guid.NewGuid(), payload.GivenName, payload.FamilyName, payload.Email, payload.Subject, request.PhoneNumber, role);
             await context.Users.AddAsync(user, cancellationToken);
-            await context.SaveChangesAsync(cancellationToken);
         }
         else if (string.IsNullOrEmpty(user.GoogleId))
         {
@@ -54,6 +59,10 @@ public class GoogleAuthCommandHandler(
 
         await context.SaveChangesAsync(cancellationToken);
 
+        if (!user.PhoneConfirmed && string.IsNullOrEmpty(user.PhoneNumber))
+        {
+            await publishEndpoint.Publish(new UserRegisteredEvent(user.Id, user.PhoneNumber), cancellationToken);
+        }
         // 🔹 Генерируем JWT
         var token = jwtProvider.GenerateAccessToken(user);
         var refreshToken = await jwtProvider.GenerateRefreshToken(user, cancellationToken);

@@ -95,12 +95,12 @@ public class AccountsController(IMediator mediator,
     [HttpPost("google-login-mediatr")]
     public async Task<IActionResult> SignInWithGoogle([FromBody] GoogleAuthRequest request)
     {
-        var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.RoleId));
+        var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.PhoneNumber, request.RoleId));
 
         return result.IsSuccess 
             ? Ok(result.Value) 
             : BadRequest(result.Error.Message);
     }
 
-    public record GoogleAuthRequest(string GoogleToken, int RoleId);
+    public record GoogleAuthRequest(string GoogleToken, string PhoneNumber, int RoleId);
 }

@@ -15,7 +15,7 @@ public class User
         string email,
         string? passwordHash,
         string? googleId,
-        string? phoneNumber,
+        string phoneNumber,
         string? region,
         string? address,
         Role role)
@@ -40,11 +40,11 @@ public class User
     public string Email { get; private set; }
     public string? PasswordHash { get; private set; } // Nullable, так как у Google-пользователей нет пароля
     public string? GoogleId { get; private set; } // Google ID пользователя
-    public string? PhoneNumber { get; private set; }
+    public string PhoneNumber { get; private set; }
     public string? Region { get; private set; }
     public string? Address { get; private set; }
     public Role Role { get; private set; }
-    public bool PhoneConfirmed { get; private set; }
+    public bool PhoneConfirmed { get; private set; } 
 
     // Stripe данные
     public string? StripeCustomerId { get; private set; }
@@ -61,7 +61,7 @@ public class User
 
     
     
-    // 🔹 Фабричный метод для регистрации через email+пароль
+    // 🔹 Фабричный метод для регистрации через email + пароль
     public static User CreateUser(
         Guid id,
         string firstName, 
@@ -83,9 +83,10 @@ public class User
         string lastName,
         string email,
         string googleId,
+        string phoneNumber,
         Role role) // Пароль отсутствует
     {
-        return new User(id, firstName, lastName, email, null, googleId, null, null, null, role);
+        return new User(id, firstName, lastName, email, null, googleId, phoneNumber, null, null, role);
     }
     
     public void LinkGoogleAccount(string googleId)
@@ -108,5 +109,9 @@ public class User
     public void AddDriverOrder(Order order)
     {
         _driverOrders.Add(order);
+    }
+    public void ConfirmPhone()
+    {
+        PhoneConfirmed = true;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Configuration;
+using System.Text;
 using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -140,17 +141,11 @@ public static class DependencyInjection
                             ?? throw new ApplicationException("GoogleOptions not found");
         
         services.AddAuthentication(options =>
-        {
-            /*options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;*/
-
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme; // Google для вызова OAuth
-            options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // ✅ Используем куки
-
-
-        }).AddJwtBearer(authenticationScheme: JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(authenticationScheme: JwtBearerDefaults.AuthenticationScheme, 
+                options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters()
             {
@@ -159,7 +154,7 @@ public static class DependencyInjection
                 ValidateLifetime = false,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
             };
-        }).AddCookie()
+        }).AddCookie(authenticationScheme: CookieAuthenticationDefaults.AuthenticationScheme)
             .AddGoogle(options =>
         {
             options.ClientId = googleOptions.ClientId;

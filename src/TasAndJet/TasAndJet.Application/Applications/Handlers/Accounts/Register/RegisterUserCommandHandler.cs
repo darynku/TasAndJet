@@ -52,7 +52,7 @@ public class RegisterUserCommandHandler(
             
             await transaction.CommitAsync(cancellationToken);
             
-            await publishEndpoint.Publish(new UserRegisteredEvent(user.PhoneNumber), cancellationToken);
+            await publishEndpoint.Publish(new UserRegisteredEvent(user.Id, user.PhoneNumber), cancellationToken);
             
             return Result.Success<ErrorList>();
             

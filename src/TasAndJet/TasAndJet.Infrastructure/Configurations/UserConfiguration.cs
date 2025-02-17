@@ -33,6 +33,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.PasswordHash);
 
         builder.Property(user => user.PhoneNumber)
+            .IsRequired()
             .HasMaxLength(15);
 
         builder.Property(user => user.Region)
