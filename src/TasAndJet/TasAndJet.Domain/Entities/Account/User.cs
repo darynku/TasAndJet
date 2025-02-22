@@ -37,14 +37,16 @@ public class User
     public Guid Id { get; private set; }
     public string FirstName { get; private set; } 
     public string LastName { get; private set; }
+    public string PhoneNumber { get; private set; }
     public string Email { get; private set; }
     public string? PasswordHash { get; private set; } // Nullable, так как у Google-пользователей нет пароля
-    public string? GoogleId { get; private set; } // Google ID пользователя
-    public string PhoneNumber { get; private set; }
-    public string? Region { get; private set; }
-    public string? Address { get; private set; }
     public Role Role { get; private set; }
-    public bool PhoneConfirmed { get; private set; } 
+    public string? Address { get; private set; }
+    public string? Region { get; private set; }
+    public bool PhoneConfirmed { get; private set; }
+
+    public string? AvatarUrl { get; set; }
+    public string? GoogleId { get; private set; } // Google ID пользователя
 
     // Stripe данные
     public string? StripeCustomerId { get; private set; }

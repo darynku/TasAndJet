@@ -1,10 +1,12 @@
-﻿using MediatR;
+﻿using CSharpFunctionalExtensions;
+using MediatR;
+using SharedKernel.Common;
 using TasAndJet.Contracts.Data.Accounts;
 using TasAndJet.Contracts.Response;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Login;
 
-public class LoginUserCommand : IRequest<TokenResponse>
+public class LoginUserCommand : IRequest<Result<TokenResponse, Error>>
 {
     public LoginUserCommand(LoginData data)
     {

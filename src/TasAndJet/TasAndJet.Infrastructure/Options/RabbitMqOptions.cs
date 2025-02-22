@@ -2,7 +2,8 @@
 
 public class RabbitMqOptions
 {
-    public string Host { get; init; } = String.Empty;
-    public string Username { get; init; } = String.Empty;
-    public string Password { get; init; } = String.Empty;
+    public const string SectionName = "RabbitMqOptions"; 
+    public string Host { get; init; } = string.Empty;
+    public string Username { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
 }

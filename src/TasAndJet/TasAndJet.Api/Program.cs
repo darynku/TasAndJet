@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 //регистрация зависимостей 
 builder.Services.AddControllers();
+builder.Services.AddOptions();
+
 builder.Services.AddProgramDependencies(builder.Configuration);
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
@@ -20,12 +22,18 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
     app.UseSwaggerUI();
     await app.AddMigrationAsync();
 }
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseHttpsRedirection();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.MapControllers();
 app.Run();
+
+namespace TasAndJet.Api
+{
+    public partial class Program;
+}
 

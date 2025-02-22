@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Text;
 using Amazon.S3;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,8 +11,10 @@ using Minio;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using TasAndJet.Api.Helper;
 using TasAndJet.Application;
 using TasAndJet.Application.Clients;
+using TasAndJet.Application.Consumers;
 using TasAndJet.Infrastructure;
 using TasAndJet.Infrastructure.Options;
 using TasAndJet.Infrastructure.Providers;
@@ -26,6 +29,7 @@ public static class DependencyInjection
         this IServiceCollection services, IConfiguration configuration)
     {
         services
+            .AddHelpers()
             .AddDataAccess(configuration)
             .AddServices()
             .AddApplicationServices(configuration)
@@ -38,6 +42,14 @@ public static class DependencyInjection
         return services;
     }
 
+    private static IServiceCollection AddHelpers(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+        services.AddScoped<CookieHelper>();
+
+        return services;
+    }
+    
     private static IServiceCollection AddDataAccess(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<ApplicationDbContext>();
@@ -66,17 +78,12 @@ public static class DependencyInjection
 
     private static IServiceCollection AddS3Storage(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<MinioOptions>(configuration.GetSection(MinioOptions.MinioSection));
-    
-        var minioOptions = configuration.GetSection(MinioOptions.MinioSection).Get<MinioOptions>()
-                           ?? throw new ApplicationException("MinioOptions not found");
-
         services.AddMinio(config =>
         {
             config
-                .WithEndpoint(minioOptions.Endpoint)
-                .WithCredentials(minioOptions.AccessKey, minioOptions.SecretKey)
-                .WithSSL(minioOptions.WithSsl)
+                .WithEndpoint(configuration["MinioOptions:Endpoint"])
+                .WithCredentials(configuration["MinioOptions:AccessKey"], configuration["MinioOptions:SecretKey"])
+                .WithSSL(false)
                 .Build();
         });
 
@@ -84,12 +91,12 @@ public static class DependencyInjection
         {
             var config = new AmazonS3Config
             {
-                ServiceURL = $"http://{minioOptions.Endpoint}",
-                UseHttp = minioOptions.WithSsl,
+                ServiceURL = "http://minio:9000",
+                UseHttp = false,
                 ForcePathStyle = true
             };
 
-            return new AmazonS3Client(minioOptions.AccessKey, minioOptions.SecretKey, config);
+            return new AmazonS3Client(configuration["MinioOptions:AccessKey"], configuration["MinioOptions:SecretKey"], config);
         });
 
         return services;

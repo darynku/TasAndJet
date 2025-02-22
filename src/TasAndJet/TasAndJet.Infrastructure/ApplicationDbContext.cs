@@ -7,7 +7,7 @@ using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Infrastructure;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext: DbContext
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();

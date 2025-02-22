@@ -49,7 +49,6 @@ public class RegisterUserCommandHandler(
             await context.Users.AddAsync(user, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
             
-            
             await transaction.CommitAsync(cancellationToken);
             
             await publishEndpoint.Publish(new UserRegisteredEvent(user.Id, user.PhoneNumber), cancellationToken);
@@ -59,7 +58,7 @@ public class RegisterUserCommandHandler(
         }
         catch (Exception ex)
         {
-            logger.LogError("Ошибка при регистрации пользователя: {@Email}, {@Phone} Ошибка: {@Message}",
+            logger.LogError("Ошибка при регистрации пользователя: {Email}, {Phone} Ошибка: {Message}",
                 request.Email, request.PhoneNumber, ex.Message);
             
             await transaction.RollbackAsync(cancellationToken);

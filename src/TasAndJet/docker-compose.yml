@@ -35,25 +35,25 @@
       - "8080:80"
     restart: unless-stopped
 
-  minio:
-    container_name: minio
-    image: minio/minio
-    ports:
-      - "9000:9000"
-      - "9001:9001" 
-    volumes:
-      - minio_data:/data
-    command: server --console-address ":9001" /data
-    restart: always
-
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    container_name: jaeger
-    ports:
-      - 4317:4317
-      - 4318:4318
-      - 16686:16686
-    restart: always
+#  minio:
+#    container_name: minio
+#    image: minio/minio
+#    ports:
+#      - "9000:9000"
+#      - "9001:9001" 
+#    volumes:
+#      - minio_data:/data
+#    command: server --console-address ":9001" /data
+#    restart: always
+#
+#  jaeger:
+#    image: jaegertracing/all-in-one:latest
+#    container_name: jaeger
+#    ports:
+#      - 4317:4317
+#      - 4318:4318
+#      - 16686:16686
+#    restart: always
     
   rabbitmq:
     image: rabbitmq:management-alpine
@@ -77,5 +77,5 @@
     
 volumes:
   postgres_data:
-  minio_data:
-  redis_data:
+#  minio_data:
+#  redis_data:

@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using SharedKernel.Common;
+using TasAndJet.Api.Helper;
 using TasAndJet.Application.Applications.Handlers.Accounts.Get;
 using TasAndJet.Application.Applications.Handlers.Accounts.Google;
 using TasAndJet.Application.Applications.Handlers.Accounts.Login;
+using TasAndJet.Application.Applications.Handlers.Accounts.Logout;
 using TasAndJet.Application.Applications.Handlers.Accounts.RefreshToken;
 using TasAndJet.Application.Applications.Handlers.Accounts.Register;
 using TasAndJet.Application.Applications.Handlers.Accounts.SendSmsCode;
@@ -13,8 +15,9 @@ using TasAndJet.Contracts.Data.Accounts;
 
 namespace TasAndJet.Api.Controllers;
 
-public class AccountsController(IMediator mediator,
-    IHttpClientFactory httpClientFactory) : ApplicationController
+public class AccountsController(
+    IMediator mediator,
+    CookieHelper cookieHelper) : ApplicationController
 {
     [HttpPost("register")]
     public async Task<ActionResult> Register([FromBody] RegisterData data, CancellationToken cancellationToken)
@@ -33,7 +36,16 @@ public class AccountsController(IMediator mediator,
     {
         var command = new LoginUserCommand(data);
         var result = await mediator.Send(command, cancellationToken);
-        return Ok(result);
+
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+
+        var setRefreshCookie = cookieHelper.SetRefreshSessionCookie(result.Value.RefreshToken);
+        
+        if (setRefreshCookie.IsFailure)
+            return setRefreshCookie.Error.ToResponse();
+            
+        return Ok(result.Value);
     }
 
     [HttpPost("send-2fa-code")]
@@ -59,15 +71,42 @@ public class AccountsController(IMediator mediator,
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command, CancellationToken cancellationToken)
     {
+        var getRefreshSession = cookieHelper.GetRefreshSessionCookie();
+        
+        if (getRefreshSession.IsFailure)
+            return Unauthorized(getRefreshSession.Error);
+        
         var result = await mediator.Send(command, cancellationToken);
+        
         if(result.IsFailure)
             return result.Error.ToResponse();
+        
+        var setRefreshCookie = cookieHelper.SetRefreshSessionCookie(result.Value.RefreshToken);
+        
+        if (setRefreshCookie.IsFailure)
+            return setRefreshCookie.Error.ToResponse();
+        
         return Ok(result.Value);
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    public async Task<IActionResult> Logout(LogoutCommand command, CancellationToken cancellationToken)
     {
+        var getRefreshSession = cookieHelper.GetRefreshSessionCookie();
+        
+        if (getRefreshSession.IsFailure)
+            return Unauthorized(getRefreshSession.Error);
+
+        var result = await mediator.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+        
+        var deleteRefreshCookie = cookieHelper.DeleteRefreshSessionCookie();
+        
+        if (deleteRefreshCookie.IsFailure)
+            return deleteRefreshCookie.Error.ToResponse();
+
         return Ok();
     }
 
@@ -92,7 +131,7 @@ public class AccountsController(IMediator mediator,
         return Ok("Success");
     }
 
-    [HttpPost("google-login-mediatr")]
+    [HttpPost("google-login")]
     public async Task<IActionResult> SignInWithGoogle([FromBody] GoogleAuthRequest request)
     {
         var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.PhoneNumber, request.RoleId));

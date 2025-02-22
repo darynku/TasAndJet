@@ -39,11 +39,6 @@ public static class DependencyInjection
     
     private static IServiceCollection AddMessageBus(this IServiceCollection services, IConfiguration configuration)
     {
-        var rabbitMqOptions = configuration.GetSection("RabbitMq").Get<RabbitMqOptions>() 
-                              ?? throw new ApplicationException(nameof(RabbitMqOptions));
-        
-        services.Configure<RabbitMqOptions>(configuration.GetSection("RabbitMq"));
-        
         services.AddMassTransit(configure =>
         {
             configure.SetKebabCaseEndpointNameFormatter();
@@ -52,10 +47,10 @@ public static class DependencyInjection
             
             configure.UsingRabbitMq((context, cfg) =>
             {
-                cfg.Host(new Uri(rabbitMqOptions.Host), h =>
+                cfg.Host(new Uri(configuration["RabbitMqOptions:Host"]!), h =>
                 {
-                    h.Username(rabbitMqOptions.Username);
-                    h.Password(rabbitMqOptions.Password);
+                    h.Username(configuration["RabbitMqOptions:UserName"]!);
+                    h.Password(configuration["RabbitMqOptions:Password"]!);
                 });
                 
                 cfg.ConfigureEndpoints(context);
@@ -64,4 +59,5 @@ public static class DependencyInjection
 
         return services;
     }
+
 }
