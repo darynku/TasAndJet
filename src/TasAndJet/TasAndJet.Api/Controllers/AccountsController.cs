@@ -62,11 +62,11 @@ public class AccountsController(
     {
         var command = new VerifyCodeCommand(data);
         var result = await mediator.Send(command, cancellationToken);
-        if (result is false)
+        if (result.IsFailure)
         {
             return Unauthorized("Неправильный код или имтек срок действия");
         }
-        return Ok(result);
+        return Ok(result.IsSuccess);
     }
 
     [HttpPost("refresh")]
