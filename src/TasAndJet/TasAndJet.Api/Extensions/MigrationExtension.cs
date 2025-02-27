@@ -9,7 +9,7 @@ public static class MigrationExtension
         this WebApplication app, 
         CancellationToken cancellationToken = default)
     {
-        await using var scope = app.Services.CreateAsyncScope();
+        using var scope = app.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         await dbContext.Database.MigrateAsync(cancellationToken: cancellationToken);

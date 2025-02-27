@@ -30,7 +30,6 @@ public static class DependencyInjection
     {
         services
             .AddHelpers()
-            .AddDataAccess(configuration)
             .AddServices()
             .AddApplicationServices(configuration)
             .AddClients(configuration)
@@ -46,13 +45,6 @@ public static class DependencyInjection
     {
         services.AddHttpContextAccessor();
         services.AddScoped<CookieHelper>();
-
-        return services;
-    }
-    
-    private static IServiceCollection AddDataAccess(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddScoped<ApplicationDbContext>();
 
         return services;
     }
@@ -78,25 +70,31 @@ public static class DependencyInjection
 
     private static IServiceCollection AddS3Storage(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddMinio(config =>
-        {
-            config
-                .WithEndpoint(configuration["MinioOptions:Endpoint"])
-                .WithCredentials(configuration["MinioOptions:AccessKey"], configuration["MinioOptions:SecretKey"])
-                .WithSSL(false)
-                .Build();
-        });
+        services.Configure<MinioOptions>(configuration.GetSection(MinioOptions.MinioSection));
+    
+        var minioOptions = configuration.GetSection(MinioOptions.MinioSection).Get<MinioOptions>()
+                           ?? throw new ApplicationException("MinioOptions not found");
+
+
+        // services.AddMinio(config =>
+        // {
+        //     config
+        //         .WithEndpoint(minioOptions.Endpoint)
+        //         .WithCredentials(minioOptions.AccessKey, minioOptions.SecretKey)
+        //         .WithSSL(minioOptions.WithSsl)
+        //         .Build();
+        // });
 
         services.AddSingleton<IAmazonS3>(_ =>
         {
             var config = new AmazonS3Config
             {
-                ServiceURL = "http://minio:9000",
-                UseHttp = false,
+                ServiceURL = $"http://{minioOptions.Endpoint}",
+                UseHttp = minioOptions.WithSsl,
                 ForcePathStyle = true
             };
 
-            return new AmazonS3Client(configuration["MinioOptions:AccessKey"], configuration["MinioOptions:SecretKey"], config);
+            return new AmazonS3Client(minioOptions.AccessKey, minioOptions.SecretKey, config);
         });
 
         return services;

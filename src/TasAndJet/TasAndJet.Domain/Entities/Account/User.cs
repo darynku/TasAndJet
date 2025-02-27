@@ -45,7 +45,7 @@ public class User
     public string? Region { get; private set; }
     public bool PhoneConfirmed { get; private set; }
 
-    public string? AvatarUrl { get; set; }
+    public string? AvatarUrl { get; private set; }
     public string? GoogleId { get; private set; } // Google ID пользователя
 
     // Stripe данные

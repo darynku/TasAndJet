@@ -32,6 +32,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(user => user.PasswordHash);
 
+        builder.Property(user => user.AvatarUrl)
+            .IsRequired(false)
+            .HasMaxLength(255);
+        
         builder.Property(user => user.PhoneNumber)
             .IsRequired()
             .HasMaxLength(15);

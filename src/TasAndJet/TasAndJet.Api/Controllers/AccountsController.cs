@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using CSharpFunctionalExtensions;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using SharedKernel.Common;
@@ -28,7 +29,7 @@ public class AccountsController(
         {
             return result.Error.ToResponse();
         }
-        return Ok();
+        return Ok(result.IsSuccess);
     }
 
     [HttpPost("login")]

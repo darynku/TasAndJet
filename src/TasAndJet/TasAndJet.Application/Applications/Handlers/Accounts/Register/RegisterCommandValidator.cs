@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using SharedKernel.Common;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Register;
 
@@ -22,7 +23,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
 
         RuleFor(x => x.PhoneNumber)
             .NotEmpty().WithMessage("Номер телефона обязателен для заполнения.")
-            .Matches(@"^\+7(701|702|705|707|708|747|750|751|760|761|762|763|764|771|775|776|777|778)\d{6}$")
+            .Matches(ValidationConstants.ValidPhoneNumberPattern)
             .WithMessage("Некорректный номер телефона Казахстана.");;
 
         RuleFor(x => x.Region)

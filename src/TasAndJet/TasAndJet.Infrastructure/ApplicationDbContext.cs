@@ -7,8 +7,11 @@ using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Infrastructure;
 
-public class ApplicationDbContext: DbContext
+public class ApplicationDbContext : DbContext
 {
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+    }
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<RefreshSession> RefreshSessions => Set<RefreshSession>();
@@ -16,16 +19,13 @@ public class ApplicationDbContext: DbContext
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
     public DbSet<Service> Services => Set<Service>();
     public DbSet<Review> Reviews => Set<Review>();
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql("Host=postgresDB;Port=5432;Database=tasandjet2;User ID=postgres;Password=123;Include Error Detail=true");
-        optionsBuilder.UseLoggerFactory(CreateLoggerFactory());
-
+        base.OnConfiguring(optionsBuilder);
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
-        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Role>()
             .HasData(
                 new Role(1, "Admin"),
@@ -34,7 +34,5 @@ public class ApplicationDbContext: DbContext
             
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
-
-    private ILoggerFactory CreateLoggerFactory() =>
-        LoggerFactory.Create(builder => builder.SetMinimumLevel(LogLevel.Information));
+    
 }
