@@ -64,7 +64,7 @@ public class AccountsController(
         var result = await mediator.Send(command, cancellationToken);
         if (result.IsFailure)
         {
-            return Unauthorized("Неправильный код или имтек срок действия");
+            return result.Error.ToResponse();
         }
         return Ok(result.IsSuccess);
     }
