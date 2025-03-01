@@ -81,6 +81,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey("RoleId")
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
+        
+        
+        builder.HasMany(u => u.Vehicles)
+            .WithOne(v => v.User)
+            .HasForeignKey(v => v.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
 
         // 🔹 Индексы (уникальность)
         /*builder.HasIndex(user => user.Email).IsUnique();

@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Common;
+using SharedKernel.Common.Api;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Infrastructure;
 using TasAndJet.Infrastructure.Providers.Abstract;

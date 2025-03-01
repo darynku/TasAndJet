@@ -11,7 +11,7 @@ using Minio;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using TasAndJet.Api.Helper;
+using TasAndJet.Api.Helpers;
 using TasAndJet.Application;
 using TasAndJet.Application.Clients;
 using TasAndJet.Application.Consumers;

@@ -1,5 +1,6 @@
 ﻿using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Domain.Entities.Reviews;
+using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Domain.Entities.Account;
 
@@ -56,11 +57,12 @@ public class User
     private readonly List<Order> _clientOrders = [];
     private readonly List<Order> _driverOrders = [];
     private readonly List<Review> _reviews = [];
+    private readonly List<Vehicle> _vehicles = [];
     
     public IReadOnlyCollection<Order> ClientOrders => _clientOrders.AsReadOnly();
     public IReadOnlyCollection<Order> DriverOrders => _driverOrders.AsReadOnly();
     public IReadOnlyCollection<Review> Reviews => _reviews.AsReadOnly();
-
+    public IReadOnlyCollection<Vehicle> Vehicles => _vehicles.AsReadOnly();
     
     
     // 🔹 Фабричный метод для регистрации через email + пароль
@@ -115,5 +117,10 @@ public class User
     public void ConfirmPhone()
     {
         PhoneConfirmed = true;
+    }
+
+    public void AddVehicle(Vehicle vehicle)
+    {
+        _vehicles.Add(vehicle);
     }
 }

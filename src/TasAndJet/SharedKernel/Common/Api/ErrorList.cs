@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace SharedKernel.Common;
+namespace SharedKernel.Common.Api;
 
 public class ErrorList : IEnumerable<Error>
 {

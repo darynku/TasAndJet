@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
 using SharedKernel.Common;
+using SharedKernel.Common.Api;
 using TasAndJet.Contracts.Data.Accounts;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Register;
@@ -17,6 +18,10 @@ public class RegisterUserCommand : IRequest<UnitResult<ErrorList>>
         Region = data.Region;
         Address = data.Address;
         RoleId = data.RoleId;
+        Mark = data.Mark;
+        VehicleType = data.VehicleType;
+        Capacity = data.Capacity;
+        PhotoUrl = data.PhotoUrl;
     }
     
     public string FirstName { get; }
@@ -27,4 +32,9 @@ public class RegisterUserCommand : IRequest<UnitResult<ErrorList>>
     public string Region { get; }
     public string Address { get; }
     public int RoleId { get; }
+    
+    public string Mark { get; }
+    public string VehicleType { get; }
+    public double Capacity { get; }
+    public string? PhotoUrl { get; set; }
 }

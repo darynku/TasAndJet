@@ -6,9 +6,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SharedKernel.Common;
+using SharedKernel.Common.Api;
 using TasAndJet.Application.Events;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Domain.Entities.Account;
+using TasAndJet.Domain.Entities.Services;
 using TasAndJet.Infrastructure;
 using TasAndJet.Infrastructure.Providers.Abstract;
 using GoogleOptions = TasAndJet.Infrastructure.Options.GoogleOptions;
@@ -48,8 +50,33 @@ public class GoogleAuthCommandHandler(
         
         if (user is null)
         {
-            user = User.CreateGoogleUser(Guid.NewGuid(), payload.GivenName, payload.FamilyName, payload.Email, payload.Subject, request.PhoneNumber, role);
+            user = User.CreateGoogleUser(
+                Guid.NewGuid(),
+                payload.GivenName, 
+                payload.FamilyName,
+                payload.Email,
+                payload.Subject, 
+                request.PhoneNumber,
+                role);
+            
             await context.Users.AddAsync(user, cancellationToken);
+            
+            if (role.Name == "Driver")  
+            {
+                var vehicle = Vehicle.Create(
+                    Guid.NewGuid(),
+                    user.Id,
+                    request.VehicleDto.VehicleType,
+                    request.VehicleDto.Mark,
+                    request.VehicleDto.Capacity,
+                    request.VehicleDto.PhotoUrl);
+
+                await context.Vehicles.AddAsync(vehicle, cancellationToken);
+                
+                user.AddVehicle(vehicle);
+                
+                await context.SaveChangesAsync(cancellationToken);
+            }
         }
         else if (string.IsNullOrEmpty(user.GoogleId))
         {

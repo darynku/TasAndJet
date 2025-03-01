@@ -1,8 +1,8 @@
 ﻿using System.Security.Claims;
 using CSharpFunctionalExtensions;
-using SharedKernel.Common;
+using SharedKernel.Common.Api;
 
-namespace TasAndJet.Api.Helper;
+namespace TasAndJet.Api.Helpers;
 
 public class CookieHelper(IHttpContextAccessor httpContextAccessor)
 {

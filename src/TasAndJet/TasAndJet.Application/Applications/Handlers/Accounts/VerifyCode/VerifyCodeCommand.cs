@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
 using SharedKernel.Common;
+using SharedKernel.Common.Api;
 using TasAndJet.Contracts.Data.Accounts;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.VerifyCode;

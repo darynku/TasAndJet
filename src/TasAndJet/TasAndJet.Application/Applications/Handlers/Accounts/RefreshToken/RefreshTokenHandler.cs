@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Common;
+using SharedKernel.Common.Api;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Infrastructure;
 using TasAndJet.Infrastructure.Providers.Abstract;

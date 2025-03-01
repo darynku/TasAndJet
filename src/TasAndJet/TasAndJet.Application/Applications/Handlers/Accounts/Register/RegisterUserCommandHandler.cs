@@ -5,9 +5,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Common;
+using SharedKernel.Common.Api;
 using SharedKernel.Validators;
 using TasAndJet.Application.Events;
 using TasAndJet.Domain.Entities.Account;
+using TasAndJet.Domain.Entities.Services;
 using TasAndJet.Infrastructure;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Register;
@@ -44,10 +46,26 @@ public class RegisterUserCommandHandler(
                 request.Region,
                 request.Address,
                 role);
-
             
             await context.Users.AddAsync(user, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
+            
+            if (role.Name == "Driver")  
+            {
+                var vehicle = Vehicle.Create(
+                    Guid.NewGuid(),
+                    user.Id,
+                    request.VehicleType,
+                    request.Mark,
+                    request.Capacity,
+                    request.PhotoUrl);
+
+                await context.Vehicles.AddAsync(vehicle, cancellationToken);
+                
+                user.AddVehicle(vehicle);
+                
+                await context.SaveChangesAsync(cancellationToken);
+            }
             
             await transaction.CommitAsync(cancellationToken);
             

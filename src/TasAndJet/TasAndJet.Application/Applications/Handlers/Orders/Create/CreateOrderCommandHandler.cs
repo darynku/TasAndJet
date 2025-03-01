@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SharedKernel.Common.Exceptions;
 using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Domain.Entities.Services;
 using TasAndJet.Infrastructure;
@@ -15,14 +16,16 @@ public class CreateOrderCommandHandler(
     public async Task<Guid> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
         var client = await context.Users.FirstOrDefaultAsync(u => u.Id == request.ClientId, cancellationToken)
-            ?? throw new ArgumentException("Такого пользователя не существует");
+            ?? throw new UserNotFoundException("Такого пользователя не существует");
 
         var driver = await context.Users.FirstOrDefaultAsync(d => d.Id == request.DriverId, cancellationToken)
-            ?? throw new ArgumentException("Такого пользователя не существует");;
+            ?? throw new UserNotFoundException("Такого пользователя не существует");;
         
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
-
-        var vehicle = Vehicle.Create(Guid.NewGuid(), request.VehicleType, request.PhotoUrl);
+        
+        //TODO
+        var vehicle = new Vehicle();
+        
         var service = Service.Create(Guid.NewGuid(), request.Title, vehicle, request.ServiceType);
         var order = Order.Create(
             Guid.NewGuid(),

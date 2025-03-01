@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SharedKernel.Common;
+namespace SharedKernel.Common.Api;
 
 public static class ResponseExtensions
 {

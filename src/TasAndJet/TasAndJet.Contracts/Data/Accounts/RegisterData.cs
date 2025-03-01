@@ -10,4 +10,9 @@ public class RegisterData
     public required string Region { get; set; }
     public required string Address { get; set; }
     public required int RoleId { get; set; }
+    
+    public required string Mark { get; set; }
+    public required string VehicleType { get; set; }
+    public required double Capacity { get; set; }
+    public required string? PhotoUrl { get; set; }
 }

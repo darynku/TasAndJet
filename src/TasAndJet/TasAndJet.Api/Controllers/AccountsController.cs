@@ -3,7 +3,9 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using SharedKernel.Common;
-using TasAndJet.Api.Helper;
+using SharedKernel.Common.Api;
+using TasAndJet.Api.Helpers;
+using TasAndJet.Api.Requests;
 using TasAndJet.Application.Applications.Handlers.Accounts.Get;
 using TasAndJet.Application.Applications.Handlers.Accounts.Google;
 using TasAndJet.Application.Applications.Handlers.Accounts.Login;
@@ -135,12 +137,12 @@ public class AccountsController(
     [HttpPost("google-login")]
     public async Task<IActionResult> SignInWithGoogle([FromBody] GoogleAuthRequest request)
     {
-        var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.PhoneNumber, request.RoleId));
+        var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.PhoneNumber, request.RoleId, request.VehicleDto));
 
         return result.IsSuccess 
             ? Ok(result.Value) 
             : BadRequest(result.Error.Message);
     }
 
-    public record GoogleAuthRequest(string GoogleToken, string PhoneNumber, int RoleId);
+
 }
