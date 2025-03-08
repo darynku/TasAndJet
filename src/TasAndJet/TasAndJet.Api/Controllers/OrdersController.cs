@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using CSharpFunctionalExtensions;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Common;
 using SharedKernel.Common.Api;
@@ -23,11 +24,12 @@ public class OrdersController(
         var result = await mediator.Send(command, cancellationToken);
         return Ok(result);
     }
-    
+
     [HttpPost("upload")]
     public async Task<IActionResult> UploadPhoto(IFormFile file, CancellationToken cancellationToken)
     {
-        var request = new UploadFileRequest(Guid.NewGuid().ToString(), file.FileName, file.ContentType, file.OpenReadStream());
+        var request = new UploadFileRequest(Guid.NewGuid().ToString(), file.FileName, file.ContentType,
+            file.OpenReadStream());
         await fileProvider.UploadFileAsync(request, cancellationToken);
         return Ok();
     }
@@ -44,16 +46,16 @@ public class OrdersController(
     {
         var query = new GetOrderQuery(orderId);
         var result = await mediator.Send(query, cancellationToken);
-        
+
         if (result.IsFailure)
             return NotFound(Envelope.Error(result.Error));
-        
+
         return Ok(result.Value);
     }
 
     [HttpPut("{orderId:guid}/status")]
     public async Task<IActionResult> UpdateOrderStatus(
-        [FromRoute] Guid orderId, 
+        [FromRoute] Guid orderId,
         [FromBody] ChangeStatusData data,
         CancellationToken cancellationToken)
     {

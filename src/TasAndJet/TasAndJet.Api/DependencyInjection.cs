@@ -75,16 +75,6 @@ public static class DependencyInjection
         var minioOptions = configuration.GetSection(MinioOptions.MinioSection).Get<MinioOptions>()
                            ?? throw new ApplicationException("MinioOptions not found");
 
-
-        // services.AddMinio(config =>
-        // {
-        //     config
-        //         .WithEndpoint(minioOptions.Endpoint)
-        //         .WithCredentials(minioOptions.AccessKey, minioOptions.SecretKey)
-        //         .WithSSL(minioOptions.WithSsl)
-        //         .Build();
-        // });
-
         services.AddSingleton<IAmazonS3>(_ =>
         {
             var config = new AmazonS3Config
@@ -93,7 +83,7 @@ public static class DependencyInjection
                 UseHttp = minioOptions.WithSsl,
                 ForcePathStyle = true
             };
-
+        
             return new AmazonS3Client(minioOptions.AccessKey, minioOptions.SecretKey, config);
         });
 
@@ -144,27 +134,28 @@ public static class DependencyInjection
 
         var googleOptions = configuration.GetSection(GoogleOptions.SectionName).Get<GoogleOptions>() 
                             ?? throw new ApplicationException("GoogleOptions not found");
-        
+
         services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(authenticationScheme: JwtBearerDefaults.AuthenticationScheme, 
+            .AddJwtBearer(authenticationScheme: JwtBearerDefaults.AuthenticationScheme,
                 options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters()
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = false,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
-            };
-        }).AddCookie(authenticationScheme: CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddGoogle(options =>
-        {
-            options.ClientId = googleOptions.ClientId;
-            options.ClientSecret = googleOptions.ClientSecret;
-        });
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = false,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                    };
+                });
+        // }).AddCookie(authenticationScheme: CookieAuthenticationDefaults.AuthenticationScheme)
+        //     .AddGoogle(options =>
+        // {
+        //     options.ClientId = googleOptions.ClientId;
+        //     options.ClientSecret = googleOptions.ClientSecret;
+        // }); Web Application != Android app
 
         services.AddAuthorization();
         return services;

@@ -1,5 +1,6 @@
 ﻿using System.Data.Common;
 using Amazon.S3;
+using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
 using Respawn;
 using TasAndJet.Api;
+using TasAndJet.Application.Consumers;
 using TasAndJet.Infrastructure;
 using Testcontainers.Minio;
 using Testcontainers.PostgreSql;
@@ -51,6 +53,7 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>, IAsyncL
         using var scope = Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+        Console.WriteLine("Удаление и создание базы данных...");
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
         
@@ -89,12 +92,16 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>, IAsyncL
         });
 
         Console.WriteLine(_dbContainer.GetConnectionString());
+        Console.WriteLine(_rabbitMqContainer.GetConnectionString());
         builder.ConfigureTestServices(ConfigureDefaultServices);
     }
 
     private async Task InitializeRespawner()
     {
-        await _dbConnection.OpenAsync();
+        if (_dbConnection.State != System.Data.ConnectionState.Open)
+        {
+            await _dbConnection.OpenAsync();
+        }
         _respawner = await Respawner.CreateAsync(
             _dbConnection,
             new RespawnerOptions { DbAdapter = DbAdapter.Postgres, SchemasToInclude = ["public"], });
@@ -110,6 +117,19 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>, IAsyncL
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(_dbContainer.GetConnectionString()));
         
+        services.AddMassTransitTestHarness(x =>
+        {
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                x.AddConsumer<UserRegisteredEventConsumer>();
+                cfg.Host(_rabbitMqContainer.Hostname, _rabbitMqContainer.GetMappedPublicPort(5672), "/", h =>
+                {
+                    h.Username("guest");
+                    h.Password("guest");
+                });
+                cfg.ConfigureEndpoints(context);
+            }); 
+        }).BuildServiceProvider(true);
 
         services.RemoveAll<IAmazonS3>();
 

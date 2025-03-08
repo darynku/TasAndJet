@@ -51,8 +51,7 @@ public class User
 
     // Stripe данные
     public string? StripeCustomerId { get; private set; }
-    public string? StripePaymentMethodId { get; private set; }
-    public string? StripeAccountId { get; private set; }
+    public UserSubscription UserSubscription { get; set; }
 
     private readonly List<Order> _clientOrders = [];
     private readonly List<Order> _driverOrders = [];
@@ -123,4 +122,13 @@ public class User
     {
         _vehicles.Add(vehicle);
     }
+    
+    public void SetStripeCustomerId(string customerId)
+    {
+        if (string.IsNullOrEmpty(StripeCustomerId))
+            StripeCustomerId = customerId;
+    }
+    
+    public bool HasActiveSubscription() => UserSubscription.EndDate != null;
+
 }

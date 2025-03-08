@@ -20,8 +20,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasAndJet.Domain", "TasAndJ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasAndJet.Contracts", "TasAndJet.Contracts\TasAndJet.Contracts.csproj", "{F5929BB6-3025-4A1C-8A8B-0A35F8E0588D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService", "PaymentService\PaymentService.csproj", "{6CBE8E17-36A3-4BB2-9381-91DB66ED6E4A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasAndJet.Tests", "TasAndJet.Tests\TasAndJet.Tests.csproj", "{BA58651A-9E1E-462A-9D2C-52A174F900C4}"
 EndProject
 Global
@@ -54,10 +52,6 @@ Global
 		{F5929BB6-3025-4A1C-8A8B-0A35F8E0588D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5929BB6-3025-4A1C-8A8B-0A35F8E0588D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5929BB6-3025-4A1C-8A8B-0A35F8E0588D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6CBE8E17-36A3-4BB2-9381-91DB66ED6E4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CBE8E17-36A3-4BB2-9381-91DB66ED6E4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CBE8E17-36A3-4BB2-9381-91DB66ED6E4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CBE8E17-36A3-4BB2-9381-91DB66ED6E4A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BA58651A-9E1E-462A-9D2C-52A174F900C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BA58651A-9E1E-462A-9D2C-52A174F900C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA58651A-9E1E-462A-9D2C-52A174F900C4}.Release|Any CPU.ActiveCfg = Release|Any CPU

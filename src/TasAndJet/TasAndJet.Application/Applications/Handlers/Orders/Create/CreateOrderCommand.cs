@@ -20,6 +20,8 @@ public class CreateOrderCommand : IRequest<Guid>
         Cost = data.Cost;
         ServiceType = data.ServiceType;
         VehicleType = data.VehicleType;
+        Mark = data.Mark;
+        Capacity = data.Capacity;
         PhotoUrl = data.PhotoUrl;
     }
     public Guid ClientId { get;}
@@ -35,6 +37,8 @@ public class CreateOrderCommand : IRequest<Guid>
     public string Title { get; } 
     public decimal Cost { get; }
     public string VehicleType { get; }
+    public string Mark { get; }
+    public double Capacity { get; }
     public string? PhotoUrl { get; }
     public ServiceType ServiceType { get; }
 

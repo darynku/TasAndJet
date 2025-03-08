@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using TasAndJet.Api;
 using TasAndJet.Api.Extensions;
 using TasAndJet.Infrastructure;
+using TasAndJet.Infrastructure.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,11 +18,18 @@ builder.Services.AddOptions();
 
 builder.Services.AddProgramDependencies(builder.Configuration);
 
-builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("Database")!));
+
+builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection("StripeOptions"));
+
+var stripeOptions = builder.Configuration.GetSection("StripeOptions").Get<StripeOptions>()
+                    ?? throw new Exception("StripeOptions not found in configuration");
+
+StripeConfiguration.ApiKey = stripeOptions.SecretKey;
 
 var app = builder.Build();
 

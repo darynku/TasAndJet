@@ -16,15 +16,15 @@ public class CreateOrderCommandHandler(
     public async Task<Guid> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
         var client = await context.Users.FirstOrDefaultAsync(u => u.Id == request.ClientId, cancellationToken)
-            ?? throw new UserNotFoundException("Такого пользователя не существует");
+            ?? throw new NotFoundException("Такого пользователя не существует");
 
         var driver = await context.Users.FirstOrDefaultAsync(d => d.Id == request.DriverId, cancellationToken)
-            ?? throw new UserNotFoundException("Такого пользователя не существует");;
+            ?? throw new NotFoundException("Такого пользователя не существует");;
         
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
         
         //TODO
-        var vehicle = new Vehicle();
+        var vehicle = Vehicle.Create(Guid.NewGuid(), driver.Id, request.VehicleType, request.Mark, request.Capacity, request.PhotoUrl);
         
         var service = Service.Create(Guid.NewGuid(), request.Title, vehicle, request.ServiceType);
         var order = Order.Create(

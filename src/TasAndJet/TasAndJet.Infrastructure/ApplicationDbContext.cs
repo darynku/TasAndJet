@@ -12,6 +12,7 @@ public class ApplicationDbContext : DbContext
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
+
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<RefreshSession> RefreshSessions => Set<RefreshSession>();
@@ -19,11 +20,13 @@ public class ApplicationDbContext : DbContext
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
     public DbSet<Service> Services => Set<Service>();
     public DbSet<Review> Reviews => Set<Review>();
-    
+    public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
     }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Role>()

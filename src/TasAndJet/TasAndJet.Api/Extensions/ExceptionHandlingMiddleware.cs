@@ -19,7 +19,6 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
             await HandleExceptionAsync(context, ex);
         }
     }
-
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         var error = Error.Failure("UnhandledException", exception.Message);

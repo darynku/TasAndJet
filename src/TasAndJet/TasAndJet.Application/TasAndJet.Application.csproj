@@ -18,7 +18,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PaymentService\PaymentService.csproj" />
       <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
       <ProjectReference Include="..\TasAndJet.Contracts\TasAndJet.Contracts.csproj" />
       <ProjectReference Include="..\TasAndJet.Infrastructure\TasAndJet.Infrastructure.csproj" />

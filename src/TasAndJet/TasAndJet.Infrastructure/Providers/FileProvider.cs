@@ -1,7 +1,11 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Minio;
+using Minio.DataModel.Args;
+using SharedKernel.Common.Api;
 using TasAndJet.Infrastructure.Options;
 using TasAndJet.Infrastructure.Providers.Abstract;
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions.Internal;
 using TasAndJet.Domain.Entities.Account;
 
 namespace TasAndJet.Infrastructure.Configurations;
@@ -49,13 +50,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         // 🔹 Stripe данные
         builder.Property(user => user.StripeCustomerId)
             .HasMaxLength(50); // Ограничение на длину идентификатора
-
-        builder.Property(user => user.StripePaymentMethodId)
-            .HasMaxLength(50);
-
-        builder.Property(user => user.StripeAccountId)
-            .HasMaxLength(50);
-
+        
         // 🔹 Google данные
         builder.Property(user => user.GoogleId)
             .HasMaxLength(50);
@@ -82,13 +77,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
         
-        
         builder.HasMany(u => u.Vehicles)
             .WithOne(v => v.User)
             .HasForeignKey(v => v.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-
+        builder.HasOne(u => u.UserSubscription)
+            .WithOne()
+            .OnDelete(DeleteBehavior.Cascade);
+        
         // 🔹 Индексы (уникальность)
         /*builder.HasIndex(user => user.Email).IsUnique();
         builder.HasIndex(user => user.PhoneNumber).IsUnique();*/

@@ -21,5 +21,7 @@ public class OrderData
     public  required ServiceType ServiceType { get; set; }
     
     public required string VehicleType { get; set; }
+    public required string Mark { get; set; }
+    public required double Capacity { get; set; }
     public required string? PhotoUrl { get; set; }
 }

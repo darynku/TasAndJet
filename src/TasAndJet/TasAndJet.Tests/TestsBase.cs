@@ -1,5 +1,6 @@
 ﻿
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Infrastructure;
@@ -8,7 +9,7 @@ namespace TasAndJet.Tests;
 
 public abstract class TestsBase : IClassFixture<IntegrationTestWebFactory>, IAsyncLifetime
 {
-    private readonly IServiceScope _scope;
+    protected readonly IServiceScope Scope;
     protected readonly IntegrationTestWebFactory Factory;
     protected readonly ApplicationDbContext Context;
     protected readonly IMediator Mediator;
@@ -17,10 +18,10 @@ public abstract class TestsBase : IClassFixture<IntegrationTestWebFactory>, IAsy
     public TestsBase(IntegrationTestWebFactory factory)
     {
         _resetDatabase = factory.ResetDatabaseAsync;
-        _scope = factory.Services.CreateScope();
+        Scope = factory.Services.CreateScope();
         
-        Mediator = _scope.ServiceProvider.GetRequiredService<IMediator>();
-        Context = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        Mediator = Scope.ServiceProvider.GetRequiredService<IMediator>();
+        Context = Scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         Factory = factory;
         
@@ -29,7 +30,7 @@ public abstract class TestsBase : IClassFixture<IntegrationTestWebFactory>, IAsy
 
     public Task DisposeAsync()
     {
-        _scope.Dispose();
+        Scope.Dispose();
         return Task.CompletedTask;
     }
 
@@ -47,5 +48,28 @@ public abstract class TestsBase : IClassFixture<IntegrationTestWebFactory>, IAsy
             Context.Roles.AddRange(roles);
             await Context.SaveChangesAsync();
         }
+    }
+    
+    public async Task<User> SeedUser(string email, string password, int roleId)
+    {
+        await SeedRoles();
+
+        var role = await Context.Roles.FirstOrDefaultAsync(role => role.Id == roleId)
+                   ?? throw new Exception($"Role with id {roleId} not found");
+        
+        var user = User.CreateUser(
+            Guid.NewGuid(),
+            "Test",
+            "User",
+            email,
+            BCrypt.Net.BCrypt.EnhancedHashPassword(password),
+            "+1234567890",
+            "Test Region",
+            "123 Test St",
+            role
+        );
+        await Context.Users.AddAsync(user);
+        await Context.SaveChangesAsync();
+        return user;
     }
 }
