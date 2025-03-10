@@ -14,12 +14,6 @@ TasAndJet – это backend-сервис для обработки запрос
 - Отслеживание статуса заказа
 - Написание отзывов
 
-В разработке:
-
-- Оплата (картой и наличными)
-- Ввод паспортных данных водителя
-- Логин через Google
-- Дополнительные доработки
 
 ## Структура проекта
 
@@ -39,13 +33,15 @@ TasAndJet – это backend-сервис для обработки запрос
    cd tasandjet
    ```
 
-2. Собрать и запустить сервисы с помощью Docker:
+2. Выполнить миграции базы данных
+   ```sh
+   dotnet ef migrations add MigrationName -c ApplicationDbContext -p .\TasAndJet.Infrastructure\ -s .\TasAndJet.Api
+   ```
+3. Собрать и запустить сервисы с помощью Docker:
 
    ```sh
    docker-compose up -d --build
-   ```
-
-3. (При необходимости) Выполнить миграции базы данных.
+   ```.
 
 ## Переменные окружения
 
@@ -74,8 +70,8 @@ TasAndJet – это backend-сервис для обработки запрос
 
 Примеры некоторых доступных маршрутов:
 
-- `POST /api/auth/register` – регистрация
-- `POST /api/auth/login` – вход в систему
-- `POST /api/orders` – оформление заказа
-- `GET /api/orders/{id}` – получение статуса заказа
-- `POST /api/reviews` – написание отзыва
+- `POST /api/Accounts/register` – регистрация
+- `POST /api/Accounts/login` – вход в систему
+- `POST /api/Orders` – оформление заказа
+- `GET /api/Orders/{orderId}` – получение детальной информации о заказе
+- `POST /api/Reviews/create` – написание отзыва
