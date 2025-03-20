@@ -37,6 +37,6 @@ public class LoginUserCommandHandler(
 
         var role = user.Role;
         
-        return  new TokenResponse(accessToken, refreshToken, role);
+        return  new TokenResponse(user.Id, accessToken, refreshToken, role);
     }
 }

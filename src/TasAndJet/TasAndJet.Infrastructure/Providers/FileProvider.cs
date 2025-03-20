@@ -67,4 +67,25 @@ public class FileProvider(
             }
         }
     }
+    public string GeneratePreSignedUrl(string objectKey)
+    {
+        var config = new AmazonS3Config()
+        {
+            ServiceURL = "http://localhost:9000",
+            ForcePathStyle = true,
+        };
+        var localClient = new AmazonS3Client("minioadmin", "minioadmin", config);
+        
+        var request = new GetPreSignedUrlRequest
+        {
+            BucketName = Bucket,
+            Key = objectKey,
+            Verb = HttpVerb.GET,
+            Expires = DateTime.UtcNow.AddHours(1),
+        };
+
+        string url = localClient.GetPreSignedURL(request);
+        return url.Replace("https", "http");
+    }
+
 }

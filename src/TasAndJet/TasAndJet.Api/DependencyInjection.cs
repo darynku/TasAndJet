@@ -94,6 +94,7 @@ public static class DependencyInjection
     {
         services.AddSwaggerGen(c =>
         {
+            c.EnableAnnotations();
             c.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "My API", Version = "v1",

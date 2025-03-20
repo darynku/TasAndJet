@@ -13,5 +13,6 @@ public class UserResponse
     public string Region { get; set; }
     public string Address { get; set; }
     public Role Role { get; set; }
-    public IEnumerable<OrderDto> Orders { get; set; }
+    public string? AvatarUrl { get; set; }
+    // public IEnumerable<OrderDto> Orders { get; set; }
 }

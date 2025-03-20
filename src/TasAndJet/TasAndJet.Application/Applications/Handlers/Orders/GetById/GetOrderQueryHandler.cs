@@ -17,19 +17,11 @@ public class GetOrderQueryHandler(ApplicationDbContext context) : IRequestHandle
         {
             OrderId = orderDto.Id,
             ClientId = orderDto.ClientId,
-            DriverId = orderDto.DriverId,
             Description = orderDto.Description,
             PickupAddress = orderDto.PickupAddress,
             DestinationAddress = orderDto.DestinationAddress,
             OrderDate = orderDto.OrderDate,
-            Status = orderDto.Status,
-            Service = new ServiceResponse()
-            {
-                Title = orderDto.Service.Title,
-                VehicleType = orderDto.Service.Vehicle.VehicleType,
-                PhotoUrl = orderDto.Service.Vehicle.PhotoUrl,
-                ServiceType = orderDto.Service.ServiceType
-            }
+            Status = orderDto.Status
         }).FirstOrDefaultAsync(orderDto => orderDto.OrderId == request.OrderId, cancellationToken);
         if (result == null)
             return Errors.General.NotFound(result?.OrderId, "Заказ не найден");

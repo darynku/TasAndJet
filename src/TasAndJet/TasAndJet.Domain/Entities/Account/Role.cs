@@ -2,6 +2,8 @@
 
 public class Role 
 {
+    public const string Driver = "Driver";
+    public const string Client = "Client";
     private Role()
     {
     }

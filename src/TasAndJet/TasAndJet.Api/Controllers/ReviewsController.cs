@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Common;
 using SharedKernel.Common.Api;
+using Swashbuckle.AspNetCore.Annotations;
 using TasAndJet.Application.Applications.Handlers.Reviews.Create;
 using TasAndJet.Contracts.Data.Review;
 
 namespace TasAndJet.Api.Controllers;
 
+[SwaggerTag("Контроллер для работы с отзывами под заказом")]
 public class ReviewsController(IMediator mediatr) : ApplicationController
 {
     [HttpPost("create")]

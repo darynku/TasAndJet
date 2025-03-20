@@ -1,5 +1,6 @@
 ﻿using TasAndJet.Application.Applications.Handlers.Accounts.Register;
 using TasAndJet.Contracts.Data.Accounts;
+using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Tests.Accounts;
 
@@ -25,7 +26,7 @@ public class RegisterTest(IntegrationTestWebFactory factory) : TestsBase(factory
             RoleId = 9, // Ролей всего 3
             Mark = "Brbrbrb",
             Capacity = 90.0,
-            VehicleType = "Dadada",
+            VehicleType = VehicleType.Forklift,
             PhotoUrl = "qwerty.png"
         });
         

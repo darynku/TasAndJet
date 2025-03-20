@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Paged;
 using TasAndJet.Contracts.Dto;
 using TasAndJet.Contracts.Response;
@@ -22,34 +23,12 @@ public class GetUsersQueryHandler(ApplicationDbContext context) : IRequestHandle
                 Region = u.Region,
                 Address = u.Address,
                 Role = u.Role,
-                Orders = u.ClientOrders.Select(o => new OrderDto
-                    {
-                        Id = o.Id,
-                        ClientName = u.FirstName + " " + u.LastName,
-                        DriverName = o.Driver.FirstName + " " + o.Driver.LastName,
-                        Description = o.Description,
-                        PickupAddress = o.PickupAddress,
-                        DestinationAddress = o.DestinationAddress,
-                        OrderDate = o.OrderDate,
-                        Status = o.Status,
-                        Service = o.Service
-                    }).ToList()
-                    .Concat(
-                        u.DriverOrders.Select(o => new OrderDto
-                        {
-                            Id = o.Id,
-                            ClientName = o.Client.FirstName + " " + o.Client.LastName,
-                            DriverName = u.FirstName + " " + u.LastName,
-                            Description = o.Description,
-                            PickupAddress = o.PickupAddress,
-                            DestinationAddress = o.DestinationAddress,
-                            OrderDate = o.OrderDate,
-                            Status = o.Status,
-                            Service = o.Service
-                        })
-                    ).ToList()
+                AvatarUrl = u.AvatarUrl
             });
 
+        if (!query.Any())
+            return new PagedList<UserResponse>() { };
+        
         return await query.ToPagedListAsync(request.Page, request.PageSize, cancellationToken);
     }
 }

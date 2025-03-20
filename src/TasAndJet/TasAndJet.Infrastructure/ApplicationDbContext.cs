@@ -18,7 +18,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<RefreshSession> RefreshSessions => Set<RefreshSession>();
     public DbSet<Order> Orders => Set<Order>(); 
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
-    public DbSet<Service> Services => Set<Service>();
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
 

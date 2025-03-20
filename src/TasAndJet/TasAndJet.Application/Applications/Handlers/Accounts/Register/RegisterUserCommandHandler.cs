@@ -23,7 +23,7 @@ public class RegisterUserCommandHandler(
 
     public async Task<UnitResult<ErrorList>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        await validator.ValidateAndThrowAsync(request, cancellationToken);
+        // await validator.ValidateAndThrowAsync(request, cancellationToken);
         
         var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 

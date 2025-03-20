@@ -21,10 +21,11 @@ public class GetDriverCommandHandler(ApplicationDbContext context) : IRequestHan
                 FirstName = x.FirstName,
                 LastName = x.LastName,
                 Email = x.Email,
-                Phonenumber = x.PhoneNumber,
+                PhoneNumber = x.PhoneNumber,
                 Region = x.Region,
                 Address = x.Address,
                 Role = x.Role,
+                AvatarUrl = x.AvatarUrl,
                 Orders = x.DriverOrders.Select(o => new OrderDto
                 {
                     Id = o.Id,
@@ -35,7 +36,6 @@ public class GetDriverCommandHandler(ApplicationDbContext context) : IRequestHan
                     DestinationAddress = o.DestinationAddress,
                     OrderDate = o.OrderDate,
                     Status = o.Status,
-                    Service = o.Service
                 }).ToList(),
                 Reviews = x.Reviews.Select(r => new ReviewDto
                 {

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
+using Swashbuckle.AspNetCore.Annotations;
 using TasAndJet.Api.Requests;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Infrastructure;
@@ -10,9 +11,9 @@ using TasAndJet.Infrastructure.Options;
 
 namespace TasAndJet.Api.Controllers;
 
-[ApiController]
-[Route("api/subscription")]
-public class SubscriptionController : ControllerBase
+
+[SwaggerTag("Контроллер для работы с месячной подпиской для водителя")]
+public class SubscriptionController : ApplicationController
 {
     private readonly StripeOptions _stripeOptions;
     private readonly ApplicationDbContext _dbContext;

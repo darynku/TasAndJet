@@ -93,7 +93,7 @@ public class GoogleAuthCommandHandler(
         // 🔹 Генерируем JWT
         var token = jwtProvider.GenerateAccessToken(user);
         var refreshToken = await jwtProvider.GenerateRefreshToken(user, cancellationToken);
-        var response = new TokenResponse(token, refreshToken, role);
+        var response = new TokenResponse(user.Id, token, refreshToken, role);
 
         return response;
     }

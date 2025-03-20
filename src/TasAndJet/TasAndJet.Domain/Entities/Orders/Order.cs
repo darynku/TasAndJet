@@ -9,134 +9,95 @@ using TasAndJet.Domain.Events;
 
 namespace TasAndJet.Domain.Entities.Orders;
 
-public class Order : DomainEntity
+public class Order 
 {
     private Order()
     {
     }
 
-    private Order(
-        Guid id,
-        Guid clientId,
-        Guid driverId,
-        string description,
-        string pickupAddress,
-        string destinationAddress,
-        DateTime orderDate,
-        Service service)
+    private Order(Guid id, Guid clientId, string description, string pickupAddress, string destinationAddress, 
+        decimal totalPrice, DateTime orderDate, OrderStatus orderStatus, VehicleType vehicleType)
     {
         Id = id;
         ClientId = clientId;
-        DriverId = driverId;
         Description = description;
         PickupAddress = pickupAddress;
         DestinationAddress = destinationAddress;
-        OrderDate = orderDate;
+        OrderDate = DateTime.UtcNow;
         Status = OrderStatus.Created;
-        Service = service;
+        TotalPrice = totalPrice;
+        OrderDate = orderDate;
+        Status = orderStatus;
+        VehicleType = vehicleType;
     }
 
 
-    public Guid Id { get; set; }
-    public Guid ClientId { get; set; }
-    public Guid DriverId { get; set; }
-    public User Client { get; set; }
-    public User Driver { get; set; }
+    public Guid Id { get; private set; }
+    public Guid ClientId { get; private set; }
+    public Guid? DriverId { get; private set; } // Водитель назначается позже
 
+    public User Client { get; private set; }
+    public User? Driver { get; private set; } // Может быть null, пока не назначен водитель
 
-    public string Description { get; set; }
-    public string PickupAddress { get; set; }
-    public string DestinationAddress { get; set; }
+    public string Description { get; private set; }
+    public string PickupAddress { get; private set; }
+    public string DestinationAddress { get; private set; }
 
-    public DateTime OrderDate { get; set; }
+    public DateTime OrderDate { get; private set; }
+    public OrderStatus Status { get; private set; }
+    public VehicleType VehicleType { get; private set; }
+    public decimal TotalPrice { get; private set; } // Итоговая цена заказа
 
-    public OrderStatus Status { get; set; }
-    public Service Service { get; set; }
-
-    public string Amount  { get; set; }
-    public decimal CheckOut { get; set; }
-    public Review? Review { get; set; }
-
-    public string? StripePaymentIntentId { get; set; } // ID платежа
-    public string? StripeTransferId { get; set; } // ID перевода водителю
-    
+    public Review? Review { get; private set; } // Отзыв на заказ
 
     public static Order Create(
         Guid id,
-        Guid clientId,
-        Guid driverId,
+        Guid clientId, 
         string description,
         string pickupAddress,
         string destinationAddress,
-        DateTime orderDate,
-        Service service)
+        decimal totalPrice,
+        VehicleType vehicleType)
     {
-        return new Order(
-            id,
-            clientId,
-            driverId,
-            description,
-            pickupAddress,
-            destinationAddress,
-            orderDate,
-            service);
+        return new Order(id, clientId, description, pickupAddress, destinationAddress, totalPrice, DateTime.UtcNow, OrderStatus.Created, vehicleType);
     }
+    
     public void AddReview(Review review)
     {
         Review = review;
     }
-
-    public void AssignDriverToOrder(Order order)
+    
+    public void AssignDriver(Guid driverId)
     {
+        if (Status != OrderStatus.Created)
+            throw new InvalidOperationException("Водителя можно назначить только на новый заказ.");
+
+        DriverId = driverId;
         Status = OrderStatus.Assigned;
     }
 
-    public UnitResult<Error> ConfirmOrder(Guid driverId)
+    public void Confirm()
     {
-        if (DriverId != driverId)
-            return Errors.User.InvalidCredentials();
-        
-        if(Status != OrderStatus.Assigned)
-            return Errors.General.ValueIsInvalid("order.assigned.status");
-        
+        if (Status != OrderStatus.Assigned)
+            throw new InvalidOperationException("Заказ можно подтвердить только после назначения водителя.");
+
         Status = OrderStatus.Confirmed;
-        
-        AddDomainEvent(new OrderConfirmedEvent(Id));
-        
-        return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> CompleteOrder(Guid driverId)
+    public void Complete()
     {
-        if (DriverId != driverId)
-            return Errors.User.InvalidCredentials();
-        
-        if(Status != OrderStatus.Confirmed)
-            return Errors.General.ValueIsInvalid("order.confirmed.status");
-        
+        if (Status != OrderStatus.Confirmed)
+            throw new InvalidOperationException("Заказ можно завершить только после подтверждения.");
+
         Status = OrderStatus.Completed;
-        
-        AddDomainEvent(new OrderCompletedEvent(Id));
-        
-        return UnitResult.Success<Error>();
     }
-    
-    public UnitResult<Error> ChangeStatus(OrderStatus newStatus)
+
+    public void Cancel()
     {
         if (Status == OrderStatus.Completed)
-            return Errors.Orders.InvalidStatus();
+            throw new InvalidOperationException("Нельзя отменить завершённый заказ.");
 
-        if (Status == OrderStatus.Canceled)
-            return Errors.Orders.CantCancel();
-        
-        if (newStatus == OrderStatus.Canceled)
-        {
-            Status = OrderStatus.Canceled;
-            return Result.Success<Error>();
-        }
-        Status = newStatus;
-        return Result.Success<Error>();
+        Status = OrderStatus.Canceled;
     }
-
 
 }

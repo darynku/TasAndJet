@@ -29,11 +29,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(o => o.Status)
             .HasConversion<string>()
             .IsRequired();
-
-        builder.HasOne<Service>(o => o.Service)
-            .WithMany()
-            .HasForeignKey("ServiceId") 
-            .OnDelete(DeleteBehavior.Restrict);
+        
     }
 }
 

@@ -8,6 +8,12 @@ namespace TasAndJet.Application.Applications.Handlers.Orders.Get;
 
 public class GerOrdersQueryHandler(ApplicationDbContext context) : IRequestHandler<GetOrdersQuery, PagedList<OrderResponse>>
 {
+    /// <summary>
+    /// Метод для получения заказов со статусом Created
+    /// </summary>
+    /// <param name="request">Запрос</param>
+    /// <param name="cancellationToken">Токен отмены</param>
+    /// <returns>Лист заказов вместе с пагинацией</returns>
     public async Task<PagedList<OrderResponse>> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
     {
         var orderQuery = context.Orders;
@@ -18,25 +24,17 @@ public class GerOrdersQueryHandler(ApplicationDbContext context) : IRequestHandl
     private PagedList<OrderResponse> ConvertToResponseAsync(PagedList<Order> orderPagedList)
     {
         var orders = orderPagedList.Items
+            .Where(orderDto => orderDto.Status == OrderStatus.Created)
             .Select(orderDto => new OrderResponse
             {
                 OrderId = orderDto.Id,
                 ClientId = orderDto.ClientId,
-                DriverId = orderDto.DriverId,
                 Description = orderDto.Description,
                 PickupAddress = orderDto.PickupAddress,
                 DestinationAddress = orderDto.DestinationAddress,
                 OrderDate = orderDto.OrderDate,
-                Status = orderDto.Status,
-                Service = new ServiceResponse()
-                {
-                    Title = orderDto.Service.Title,
-                    VehicleType = orderDto.Service.Vehicle.VehicleType,
-                    PhotoUrl = orderDto.Service.Vehicle.PhotoUrl,
-                    ServiceType = orderDto.Service.ServiceType
-                }
-            })
-            .ToList();
+                Status = orderDto.Status
+            }).ToList();
 
         return new PagedList<OrderResponse>()
         {

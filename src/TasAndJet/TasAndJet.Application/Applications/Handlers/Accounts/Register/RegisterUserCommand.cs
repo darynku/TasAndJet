@@ -3,6 +3,7 @@ using MediatR;
 using SharedKernel.Common;
 using SharedKernel.Common.Api;
 using TasAndJet.Contracts.Data.Accounts;
+using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Register;
 
@@ -34,7 +35,7 @@ public class RegisterUserCommand : IRequest<UnitResult<ErrorList>>
     public int RoleId { get; }
     
     public string Mark { get; }
-    public string VehicleType { get; }
+    public VehicleType VehicleType { get; }
     public double Capacity { get; }
     public string? PhotoUrl { get; set; }
 }

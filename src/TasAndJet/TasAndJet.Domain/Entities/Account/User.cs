@@ -1,4 +1,6 @@
-﻿using TasAndJet.Domain.Entities.Orders;
+﻿using CSharpFunctionalExtensions;
+using SharedKernel.Common.Api;
+using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Domain.Entities.Reviews;
 using TasAndJet.Domain.Entities.Services;
 
@@ -91,6 +93,12 @@ public class User
     {
         return new User(id, firstName, lastName, email, null, googleId, phoneNumber, null, null, role);
     }
+
+    public Order CreateOrder(Guid id, Guid clientId, string description, string pickupAddress, string destinationAddress,
+        decimal totalPrice, VehicleType vehicleType)
+    {
+        return Order.Create(id, Id, description, pickupAddress, destinationAddress, totalPrice, vehicleType);
+    }
     
     public void LinkGoogleAccount(string googleId)
     {
@@ -130,5 +138,24 @@ public class User
     }
     
     public bool HasActiveSubscription() => UserSubscription.EndDate != null;
+
+    public UnitResult<Error> AcceptOrder(Order order)
+    {
+        if (Role.Name != Role.Driver)
+            return Errors.User.InvalidRole();
+
+        order.AssignDriver(Id);
+        _driverOrders.Add(order);
+
+        return Result.Success<Error>();
+    }
+
+    public void SetAvatarUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            throw new ArgumentException("URL фото не может быть пустым");
+
+        AvatarUrl = url;
+    }
 
 }

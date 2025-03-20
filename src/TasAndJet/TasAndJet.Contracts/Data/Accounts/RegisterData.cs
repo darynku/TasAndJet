@@ -1,4 +1,6 @@
-﻿namespace TasAndJet.Contracts.Data.Accounts;
+﻿using TasAndJet.Domain.Entities.Services;
+
+namespace TasAndJet.Contracts.Data.Accounts;
 
 public class RegisterData
 {
@@ -12,7 +14,7 @@ public class RegisterData
     public required int RoleId { get; set; }
     
     public required string Mark { get; set; }
-    public required string VehicleType { get; set; }
+    public required VehicleType VehicleType { get; set; }
     public required double Capacity { get; set; }
     public required string? PhotoUrl { get; set; }
 }

@@ -2,4 +2,4 @@
 
 namespace TasAndJet.Contracts.Response;
 
-public record TokenResponse(string AccessToken, Guid RefreshToken, Role Role);
+public record TokenResponse(Guid UserId, string AccessToken, Guid RefreshToken, Role Role);

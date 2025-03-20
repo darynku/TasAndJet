@@ -17,25 +17,22 @@ public class CreateOrderCommandHandler(
     {
         var client = await context.Users.FirstOrDefaultAsync(u => u.Id == request.ClientId, cancellationToken)
             ?? throw new NotFoundException("Такого пользователя не существует");
-
-        var driver = await context.Users.FirstOrDefaultAsync(d => d.Id == request.DriverId, cancellationToken)
-            ?? throw new NotFoundException("Такого пользователя не существует");;
         
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        var vehicle = await context.Vehicles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
         
-        //TODO
-        var vehicle = Vehicle.Create(Guid.NewGuid(), driver.Id, request.VehicleType, request.Mark, request.Capacity, request.PhotoUrl);
         
-        var service = Service.Create(Guid.NewGuid(), request.Title, vehicle, request.ServiceType);
         var order = Order.Create(
             Guid.NewGuid(),
             client.Id,
-            driver.Id,
             request.Description,
             request.PickupAddress, 
             request.DestinationAddress, 
-            request.OrderDate,
-            service);
+            request.TotalPrice,
+            request.VehicleType);
         
         await context.Orders.AddAsync(order, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
@@ -43,7 +40,6 @@ public class CreateOrderCommandHandler(
         logger.LogInformation("Заказ был создан успешно {Id}, {Date}", order.Id, order.OrderDate);
     
         client.AddClientOrder(order);
-        driver.AddDriverOrder(order);
 
         await context.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

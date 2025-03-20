@@ -13,5 +13,4 @@ public class OrderResponse
     public required string DestinationAddress  { get; set; }
     public DateTime OrderDate { get; set; }
     public OrderStatus Status { get; set; }
-    public required ServiceResponse Service { get; set; }
 }

@@ -22,10 +22,11 @@ public class GetClientCommandHandler(ApplicationDbContext context)
                 FirstName = x.FirstName,
                 LastName = x.LastName,
                 Email = x.Email,
-                Phonenumber = x.PhoneNumber,
+                PhoneNumber = x.PhoneNumber,
                 Region = x.Region,
                 Address = x.Address,
                 Role = x.Role,
+                AvatarUrl = x.AvatarUrl,
                 Orders = x.ClientOrders.Select(o => new OrderDto
                 {
                     Id = o.Id,
@@ -35,8 +36,7 @@ public class GetClientCommandHandler(ApplicationDbContext context)
                     PickupAddress = o.PickupAddress,
                     DestinationAddress = o.DestinationAddress,
                     OrderDate = o.OrderDate,
-                    Status = o.Status,
-                    Service = o.Service
+                    Status = o.Status
                 }).ToList(),
                 Reviews = x.Reviews.Select(r => new ReviewDto
                 {

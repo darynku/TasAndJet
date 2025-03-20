@@ -3,8 +3,13 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Common;
 using SharedKernel.Common.Api;
-using TasAndJet.Application.Applications.Handlers.Orders.ChangeStatus;
+using Swashbuckle.AspNetCore.Annotations;
+using TasAndJet.Application.Applications.Handlers.Orders.Assign;
+using TasAndJet.Application.Applications.Handlers.Orders.Cancel;
+using TasAndJet.Application.Applications.Handlers.Orders.Complete;
+using TasAndJet.Application.Applications.Handlers.Orders.Confirm;
 using TasAndJet.Application.Applications.Handlers.Orders.Create;
+using TasAndJet.Application.Applications.Handlers.Orders.Get;
 using TasAndJet.Application.Applications.Handlers.Orders.GetById;
 using TasAndJet.Contracts.Data.Orders;
 using TasAndJet.Domain.Entities.Orders;
@@ -13,6 +18,8 @@ using TasAndJet.Infrastructure.Providers.Abstract;
 
 namespace TasAndJet.Api.Controllers;
 
+
+[SwaggerTag("Контроллер для работы с заказами")]
 public class OrdersController(
     IMediator mediator,
     IFileProvider fileProvider) : ApplicationController
@@ -24,18 +31,8 @@ public class OrdersController(
         var result = await mediator.Send(command, cancellationToken);
         return Ok(result);
     }
-
-    [HttpPost("upload")]
-    public async Task<IActionResult> UploadPhoto(IFormFile file, CancellationToken cancellationToken)
-    {
-        var request = new UploadFileRequest(Guid.NewGuid().ToString(), file.FileName, file.ContentType,
-            file.OpenReadStream());
-        await fileProvider.UploadFileAsync(request, cancellationToken);
-        return Ok();
-    }
-
     [HttpGet]
-    public async Task<IActionResult> GetOrders([FromQuery] GetOrderQuery query, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetOrders([FromQuery] GetOrdersQuery query, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
@@ -52,17 +49,31 @@ public class OrdersController(
 
         return Ok(result.Value);
     }
-
-    [HttpPut("{orderId:guid}/status")]
-    public async Task<IActionResult> UpdateOrderStatus(
-        [FromRoute] Guid orderId,
-        [FromBody] ChangeStatusData data,
-        CancellationToken cancellationToken)
+    [HttpPost("{orderId}/assign-driver/{driverId}")]
+    public async Task<IActionResult> AssignDriver(Guid orderId, Guid driverId, CancellationToken cancellationToken)
     {
-        var command = new ChangeStatusCommand(orderId, data);
-        var result = await mediator.Send(command, cancellationToken);
-        if (result.IsFailure)
-            return result.Error.ToResponse();
+        await mediator.Send(new AssignDriverCommand(orderId, driverId), cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost("{orderId}/confirm")]
+    public async Task<IActionResult> ConfirmOrder(Guid orderId, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new ConfirmOrderCommand(orderId), cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost("{orderId}/complete")]
+    public async Task<IActionResult> CompleteOrder(Guid orderId, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new CompleteOrderCommand(orderId), cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost("{orderId}/cancel")]
+    public async Task<IActionResult> CancelOrder(Guid orderId, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new CancelOrderCommand(orderId), cancellationToken);
         return Ok();
     }
 }
