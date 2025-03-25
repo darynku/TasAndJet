@@ -1,4 +1,5 @@
-﻿using TasAndJet.Application.Applications.Handlers.Accounts.Register;
+﻿using Microsoft.AspNetCore.Http;
+using TasAndJet.Application.Applications.Handlers.Accounts.Register;
 using TasAndJet.Contracts.Data.Accounts;
 using TasAndJet.Domain.Entities.Services;
 
@@ -11,7 +12,8 @@ public class RegisterTest(IntegrationTestWebFactory factory) : TestsBase(factory
     {
         // Arrange
         var cancellationToken = new CancellationTokenSource().Token;
-        
+        var avatar = new FormFile(Stream.Null, 10, 10, "test.jpg", "test.jpg");
+        var vehiclePhoto = new FormFile(Stream.Null, 10, 10, "test.jpg", "test.jpg");
         await SeedRoles();
 
         var command = new RegisterUserCommand(new RegisterData
@@ -20,6 +22,7 @@ public class RegisterTest(IntegrationTestWebFactory factory) : TestsBase(factory
             Email = "test@gmail.com",
             FirstName = "John",
             LastName = "Doe",
+            Avatar = avatar,
             Password = "password",
             PhoneNumber = "+77784928492",
             Region = "asdada",
@@ -27,7 +30,7 @@ public class RegisterTest(IntegrationTestWebFactory factory) : TestsBase(factory
             Mark = "Brbrbrb",
             Capacity = 90.0,
             VehicleType = VehicleType.Forklift,
-            PhotoUrl = "qwerty.png"
+            PhotoUrl = vehiclePhoto
         });
         
         // Act

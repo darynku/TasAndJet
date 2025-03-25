@@ -13,4 +13,9 @@ public class OrderResponse
     public required string DestinationAddress  { get; set; }
     public DateTime OrderDate { get; set; }
     public OrderStatus Status { get; set; }
+    public VehicleType VehicleType { get; set; }
+    public required string Region { get; set; }
+    public decimal TotalPrice { get; set; }
+    
+    
 }

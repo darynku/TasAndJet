@@ -1,6 +1,7 @@
 ﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using TasAndJet.Application.Clients;
+using TasAndJet.Application.Clients.Notification;
 using TasAndJet.Application.Events;
 using TasAndJet.Infrastructure;
 
@@ -12,7 +13,7 @@ public class UserRegisteredEventConsumer(
 {
     public async Task Consume(ConsumeContext<UserRegisteredEvent> context)
     {
-        if(context.Message.PhoneNumber == String.Empty)
+        if(context.Message.PhoneNumber == string.Empty)
             return;
 
         var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == context.Message.UserId)
@@ -22,7 +23,5 @@ public class UserRegisteredEventConsumer(
         await dbContext.SaveChangesAsync();
         
         await smsClient.SendSmsAsync(context.Message.PhoneNumber);
-        
-        
     }
 }

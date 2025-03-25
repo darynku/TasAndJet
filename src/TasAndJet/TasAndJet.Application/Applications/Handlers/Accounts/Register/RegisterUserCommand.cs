@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using SharedKernel.Common;
 using SharedKernel.Common.Api;
 using TasAndJet.Contracts.Data.Accounts;
@@ -14,6 +15,7 @@ public class RegisterUserCommand : IRequest<UnitResult<ErrorList>>
         FirstName = data.FirstName;
         LastName = data.LastName;
         Email = data.Email;
+        Avatar = data.Avatar;
         Password = data.Password;
         PhoneNumber = data.PhoneNumber;
         Region = data.Region;
@@ -28,6 +30,7 @@ public class RegisterUserCommand : IRequest<UnitResult<ErrorList>>
     public string FirstName { get; }
     public string LastName { get;  }
     public string Email { get; }
+    public IFormFile? Avatar { get; }
     public string Password { get;  }
     public string PhoneNumber { get; }
     public string Region { get; }
@@ -37,5 +40,5 @@ public class RegisterUserCommand : IRequest<UnitResult<ErrorList>>
     public string Mark { get; }
     public VehicleType VehicleType { get; }
     public double Capacity { get; }
-    public string? PhotoUrl { get; set; }
+    public IFormFile? PhotoUrl { get; set; }
 }

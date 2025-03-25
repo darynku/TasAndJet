@@ -3,18 +3,21 @@ using FluentValidation;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+
 using Microsoft.Extensions.Logging;
-using SharedKernel.Common;
 using SharedKernel.Common.Api;
-using SharedKernel.Validators;
+using TasAndJet.Application.Applications.Services.Accounts.UploadFile;
 using TasAndJet.Application.Events;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Domain.Entities.Services;
 using TasAndJet.Infrastructure;
+using TasAndJet.Infrastructure.Providers;
+using TasAndJet.Infrastructure.Providers.Abstract;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Register;
 
 public class RegisterUserCommandHandler(
+    IUploadFileService uploadFileService,
     IValidator<RegisterUserCommand> validator,
     ApplicationDbContext context,
     ILogger<RegisterUserCommandHandler> logger,
@@ -23,6 +26,7 @@ public class RegisterUserCommandHandler(
 
     public async Task<UnitResult<ErrorList>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
+        //todo
         // await validator.ValidateAndThrowAsync(request, cancellationToken);
         
         var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
@@ -34,32 +38,43 @@ public class RegisterUserCommandHandler(
             if (role is null)
                 return Errors.General.NotFound(null, "role").ToErrorList();
 
-            var passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password); 
+            var passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password);
+
+            var avatarUrl = string.Empty;
             
-            var user = User.CreateUser(
+            var user = User.CreateUser(  
                 Guid.NewGuid(),
                 request.FirstName,
                 request.LastName,
                 request.Email,
+                avatarUrl,
                 passwordHash,
                 request.PhoneNumber,
                 request.Region,
                 request.Address,
                 role);
+
+            if (request.Avatar is not null)
+                await uploadFileService.HandleUserAvatar(user.Id, request.Avatar, cancellationToken);
             
             await context.Users.AddAsync(user, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
             
-            if (role.Name == "Driver")  
+            if (role.Name == "Driver")
             {
+                var vehiclePhoto = string.Empty;
+                
                 var vehicle = Vehicle.Create(
                     Guid.NewGuid(),
                     user.Id,
                     request.VehicleType,
                     request.Mark,
                     request.Capacity,
-                    request.PhotoUrl);
+                    vehiclePhoto);
 
+                if(request.PhotoUrl is not null)
+                    await uploadFileService.HandleVehiclePhoto(user.Id, request.PhotoUrl, cancellationToken);
+                
                 await context.Vehicles.AddAsync(vehicle, cancellationToken);
                 
                 user.AddVehicle(vehicle);

@@ -13,4 +13,5 @@ public class OrderData
     public required DateTime OrderDate { get; set; }
     public required decimal TotalPrice { get; set; }
     public required VehicleType VehicleType { get; set; }
+    public required OrderType OrderType { get; set; }
 }

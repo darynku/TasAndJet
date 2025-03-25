@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TasAndJet.Infrastructure.Options;
 
-namespace TasAndJet.Application.Clients
+namespace TasAndJet.Application.Clients.Notification
 {
     public class SmsSenderService(ILogger<SmsSenderService> logger, IOptions<SmsOptions> smsOptions) : ISmsSenderService
     {

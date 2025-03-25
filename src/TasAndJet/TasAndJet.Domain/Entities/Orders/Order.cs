@@ -16,7 +16,7 @@ public class Order
     }
 
     private Order(Guid id, Guid clientId, string description, string pickupAddress, string destinationAddress, 
-        decimal totalPrice, DateTime orderDate, OrderStatus orderStatus, VehicleType vehicleType)
+        decimal totalPrice, DateTime orderDate, OrderStatus orderStatus, VehicleType vehicleType, OrderType orderType, string region)
     {
         Id = id;
         ClientId = clientId;
@@ -29,6 +29,8 @@ public class Order
         OrderDate = orderDate;
         Status = orderStatus;
         VehicleType = vehicleType;
+        OrderType = orderType;
+        Region = region;
     }
 
 
@@ -45,7 +47,9 @@ public class Order
 
     public DateTime OrderDate { get; private set; }
     public OrderStatus Status { get; private set; }
+    public OrderType OrderType { get; private set;  }
     public VehicleType VehicleType { get; private set; }
+    public string Region { get; private set; }
     public decimal TotalPrice { get; private set; } // Итоговая цена заказа
 
     public Review? Review { get; private set; } // Отзыв на заказ
@@ -57,9 +61,20 @@ public class Order
         string pickupAddress,
         string destinationAddress,
         decimal totalPrice,
-        VehicleType vehicleType)
+        VehicleType vehicleType,
+        OrderType orderType,
+        string region)
     {
-        return new Order(id, clientId, description, pickupAddress, destinationAddress, totalPrice, DateTime.UtcNow, OrderStatus.Created, vehicleType);
+        return new Order(id, clientId,
+            description, 
+            pickupAddress, 
+            destinationAddress, 
+            totalPrice, 
+            DateTime.UtcNow, 
+            OrderStatus.Created, 
+            vehicleType, 
+            orderType, 
+            region);
     }
     
     public void AddReview(Review review)

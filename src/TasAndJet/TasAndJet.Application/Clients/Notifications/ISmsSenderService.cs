@@ -1,5 +1,5 @@
 ﻿
-namespace TasAndJet.Application.Clients
+namespace TasAndJet.Application.Clients.Notification
 {
     public interface ISmsSenderService
     {

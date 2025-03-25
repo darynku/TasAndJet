@@ -16,6 +16,7 @@ public class CreateOrderCommand : IRequest<Guid>
         OrderDate = data.OrderDate;
         TotalPrice = data.TotalPrice;
         VehicleType = data.VehicleType;
+        OrderType = data.OrderType;
     }
     public Guid ClientId { get;}
     
@@ -27,5 +28,6 @@ public class CreateOrderCommand : IRequest<Guid>
     public decimal TotalPrice { get; }
     
     public VehicleType VehicleType { get; }
+    public OrderType OrderType { get; }
 
 }

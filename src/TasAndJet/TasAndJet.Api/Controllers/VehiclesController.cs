@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using TasAndJet.Application.Applications.Handlers.Orders.GetVehiclePhoto;
 using TasAndJet.Application.Applications.Handlers.Orders.UploadFile;
+using TasAndJet.Application.Applications.Handlers.Vehicles.Get;
+using TasAndJet.Application.Applications.Handlers.Vehicles.GetVehiclePhoto;
 
 namespace TasAndJet.Api.Controllers;
 
@@ -16,11 +17,18 @@ public class VehiclesController(IMediator mediator) : ApplicationController
         return Ok();
     }
     
-    [HttpGet("{vehicleId}/avatar")]
-    public async Task<IActionResult> GetAvatar(Guid userId, CancellationToken cancellationToken)
+    [HttpGet("{vehicleId}/photo")]
+    public async Task<IActionResult> GetVehiclePhoto(Guid userId, CancellationToken cancellationToken)
     {
         var request = new GetVehiclePhotoCommand(userId);
         var preSignedUrl = await mediator.Send(request, cancellationToken);
         return Ok(preSignedUrl);
+    }
+    [HttpGet]
+    public async Task<IActionResult> GetVehicles([FromQuery] GetVehiclesQuery query,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(query, cancellationToken);
+        return Ok(result);
     }
 }

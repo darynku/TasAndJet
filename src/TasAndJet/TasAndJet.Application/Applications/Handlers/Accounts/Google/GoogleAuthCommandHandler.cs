@@ -48,6 +48,7 @@ public class GoogleAuthCommandHandler(
         if (role is null)
             return Errors.User.InvalidRole();
         
+        
         if (user is null)
         {
             user = User.CreateGoogleUser(
@@ -55,8 +56,11 @@ public class GoogleAuthCommandHandler(
                 payload.GivenName, 
                 payload.FamilyName,
                 payload.Email,
+                payload.Picture,
                 payload.Subject, 
                 request.PhoneNumber,
+                request.Region,
+                request.Address,
                 role);
             
             await context.Users.AddAsync(user, cancellationToken);

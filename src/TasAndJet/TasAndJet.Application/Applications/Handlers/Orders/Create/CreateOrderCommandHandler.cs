@@ -12,7 +12,6 @@ public class CreateOrderCommandHandler(
     ApplicationDbContext context,
     ILogger<CreateOrderCommandHandler> logger) : IRequestHandler<CreateOrderCommand, Guid>
 {
-    // на резалт паттерн
     public async Task<Guid> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
         var client = await context.Users.FirstOrDefaultAsync(u => u.Id == request.ClientId, cancellationToken)
@@ -24,15 +23,14 @@ public class CreateOrderCommandHandler(
             .AsNoTracking()
             .FirstOrDefaultAsync(cancellationToken);
         
-        
-        var order = Order.Create(
+        var order = client.CreateOrder(
             Guid.NewGuid(),
-            client.Id,
             request.Description,
             request.PickupAddress, 
             request.DestinationAddress, 
             request.TotalPrice,
-            request.VehicleType);
+            request.VehicleType,
+            request.OrderType);
         
         await context.Orders.AddAsync(order, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);

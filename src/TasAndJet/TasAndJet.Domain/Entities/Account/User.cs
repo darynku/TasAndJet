@@ -16,17 +16,19 @@ public class User
         string firstName,
         string lastName,
         string email,
+        string avatarUrl,
         string? passwordHash,
         string? googleId,
         string phoneNumber,
-        string? region,
-        string? address,
+        string region,
+        string address,
         Role role)
     {
         Id = id;
         FirstName = firstName;
         LastName = lastName;
         Email = email;
+        AvatarUrl = avatarUrl;
         PasswordHash = passwordHash;
         GoogleId = googleId;
         PhoneNumber = phoneNumber;
@@ -45,7 +47,7 @@ public class User
     public string? PasswordHash { get; private set; } // Nullable, так как у Google-пользователей нет пароля
     public Role Role { get; private set; }
     public string? Address { get; private set; }
-    public string? Region { get; private set; }
+    public string Region { get; private set; }
     public bool PhoneConfirmed { get; private set; }
 
     public string? AvatarUrl { get; private set; }
@@ -72,32 +74,36 @@ public class User
         string firstName, 
         string lastName,
         string email,
+        string avatarUrl,
         string passwordHash,
         string phoneNumber,
         string region,
         string address,
         Role role)
     {
-        return new User(id, firstName, lastName, email, passwordHash, null, phoneNumber, region, address, role);
+        return new User(id, firstName, lastName, email, avatarUrl, passwordHash, null, phoneNumber, region, address, role);
     }
 
-    // 🔹 Фабричный метод для регистрации через Google
+    //Фабричный метод для регистрации через Google
     public static User CreateGoogleUser(
         Guid id,
         string firstName, 
         string lastName,
         string email,
+        string avatarUrl,
         string googleId,
         string phoneNumber,
+        string region,
+        string address,
         Role role) // Пароль отсутствует
     {
-        return new User(id, firstName, lastName, email, null, googleId, phoneNumber, null, null, role);
+        return new User(id, firstName, lastName, email, avatarUrl,null, googleId, phoneNumber, region, address, role);
     }
 
-    public Order CreateOrder(Guid id, Guid clientId, string description, string pickupAddress, string destinationAddress,
-        decimal totalPrice, VehicleType vehicleType)
+    public Order CreateOrder(Guid id, string description, string pickupAddress, string destinationAddress,
+        decimal totalPrice, VehicleType vehicleType, OrderType orderType)
     {
-        return Order.Create(id, Id, description, pickupAddress, destinationAddress, totalPrice, vehicleType);
+        return Order.Create(id, Id, description, pickupAddress, destinationAddress, totalPrice, vehicleType, orderType, Region);
     }
     
     public void LinkGoogleAccount(string googleId)
@@ -138,18 +144,7 @@ public class User
     }
     
     public bool HasActiveSubscription() => UserSubscription.EndDate != null;
-
-    public UnitResult<Error> AcceptOrder(Order order)
-    {
-        if (Role.Name != Role.Driver)
-            return Errors.User.InvalidRole();
-
-        order.AssignDriver(Id);
-        _driverOrders.Add(order);
-
-        return Result.Success<Error>();
-    }
-
+    
     public void SetAvatarUrl(string url)
     {
         if (string.IsNullOrWhiteSpace(url))

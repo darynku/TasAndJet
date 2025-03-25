@@ -5,8 +5,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using TasAndJet.Api.Helpers;
 using TasAndJet.Api.Requests;
 using TasAndJet.Application.Applications.Handlers.Accounts.Get;
-using TasAndJet.Application.Applications.Handlers.Accounts.GetClient;
-using TasAndJet.Application.Applications.Handlers.Accounts.GetDriver;
 using TasAndJet.Application.Applications.Handlers.Accounts.GetPreSignedUrl;
 using TasAndJet.Application.Applications.Handlers.Accounts.Google;
 using TasAndJet.Application.Applications.Handlers.Accounts.Login;
@@ -129,30 +127,6 @@ public class AccountsController(
 
         return Ok();
     }
-    //
-    // [HttpGet("client")]
-    // public async Task<IActionResult> GetClient(Guid id, CancellationToken cancellationToken)
-    // {
-    //     var request = new GetClientCommand(id);
-    //     var result = await mediator.Send(request, cancellationToken);
-    //     
-    //     if(result.IsFailure)
-    //         return result.Error.ToResponse();
-    //     
-    //     return Ok();
-    // }
-    //
-    // [HttpGet("driver")]
-    // public async Task<IActionResult> GetDriver(Guid id, CancellationToken cancellationToken)
-    // {
-    //     var request = new GetDriverCommand(id);
-    //     var result = await mediator.Send(request, cancellationToken);
-    //     
-    //     if(result.IsFailure)
-    //         return result.Error.ToResponse();
-    //     
-    //     return Ok();
-    // }
     
     [HttpGet("users")]
     public async Task<IActionResult> GetUsers([FromQuery] GetUsersQuery query, CancellationToken cancellationToken)
@@ -178,7 +152,7 @@ public class AccountsController(
     [HttpPost("google-login")]
     public async Task<IActionResult> SignInWithGoogle([FromBody] GoogleAuthRequest request)
     {
-        var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.PhoneNumber, request.RoleId, request.VehicleDto));
+        var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.PhoneNumber,  request.Region, request.Address, request.RoleId, request.VehicleDto));
 
         return result.IsSuccess 
             ? Ok(result.Value) 

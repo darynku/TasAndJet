@@ -62,6 +62,7 @@ public abstract class TestsBase : IClassFixture<IntegrationTestWebFactory>, IAsy
             "Test",
             "User",
             email,
+            "test.png",
             BCrypt.Net.BCrypt.EnhancedHashPassword(password),
             "+1234567890",
             "Test Region",

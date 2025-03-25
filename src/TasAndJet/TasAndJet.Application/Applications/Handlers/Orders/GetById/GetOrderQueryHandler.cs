@@ -13,15 +13,19 @@ public class GetOrderQueryHandler(ApplicationDbContext context) : IRequestHandle
 {
     public async Task<Result<OrderResponse, Error>> Handle(GetOrderQuery request, CancellationToken cancellationToken)
     {
-        var result = await context.Orders.Select(orderDto => new OrderResponse
+        var result = await context.Orders.Select(order => new OrderResponse
         {
-            OrderId = orderDto.Id,
-            ClientId = orderDto.ClientId,
-            Description = orderDto.Description,
-            PickupAddress = orderDto.PickupAddress,
-            DestinationAddress = orderDto.DestinationAddress,
-            OrderDate = orderDto.OrderDate,
-            Status = orderDto.Status
+            OrderId = order.Id,
+            ClientId = order.ClientId,
+            Description = order.Description,
+            PickupAddress = order.PickupAddress,
+            DestinationAddress = order.DestinationAddress,
+            OrderDate = order.OrderDate,
+            Status = order.Status,
+            VehicleType = order.VehicleType,
+            Region = order.Region,
+            TotalPrice = order.TotalPrice,
+            
         }).FirstOrDefaultAsync(orderDto => orderDto.OrderId == request.OrderId, cancellationToken);
         if (result == null)
             return Errors.General.NotFound(result?.OrderId, "Заказ не найден");

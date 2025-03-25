@@ -2,6 +2,7 @@
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TasAndJet.Application.Applications.Services.Accounts.UploadFile;
 using TasAndJet.Application.Consumers;
 using TasAndJet.Infrastructure.Options;
 
@@ -12,6 +13,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services
+            .AddServices()
             .AddMediator()
             .AddValidators()
             .AddCache()
@@ -22,6 +24,13 @@ public static class DependencyInjection
     private static IServiceCollection AddCache(this IServiceCollection services)
     {
         services.AddDistributedMemoryCache();
+        return services;
+    }
+
+    private static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        services.AddScoped<IUploadFileService, UploadFileService>();
+
         return services;
     }
     private static IServiceCollection AddMediator(this IServiceCollection services)
