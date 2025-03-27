@@ -53,12 +53,12 @@ public class RegisterUserCommandHandler(
                 request.Region,
                 request.Address,
                 role);
-
-            if (request.Avatar is not null)
-                await uploadFileService.HandleUserAvatar(user.Id, request.Avatar, cancellationToken);
             
             await context.Users.AddAsync(user, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
+            
+            if (request.Avatar is not null)
+                await uploadFileService.HandleUserAvatar(user.Id, request.Avatar, cancellationToken);
             
             if (role.Name == "Driver")
             {
@@ -71,15 +71,13 @@ public class RegisterUserCommandHandler(
                     request.Mark,
                     request.Capacity,
                     vehiclePhoto);
-
-                if(request.PhotoUrl is not null)
-                    await uploadFileService.HandleVehiclePhoto(user.Id, request.PhotoUrl, cancellationToken);
                 
                 await context.Vehicles.AddAsync(vehicle, cancellationToken);
-                
                 user.AddVehicle(vehicle);
-                
                 await context.SaveChangesAsync(cancellationToken);
+                
+                if(request.PhotoUrl is not null)
+                    await uploadFileService.HandleVehiclePhoto(user.Id, request.PhotoUrl, cancellationToken);
             }
             
             await transaction.CommitAsync(cancellationToken);

@@ -24,7 +24,7 @@ public class AccountsController(
     CookieHelper cookieHelper) : ApplicationController
 {
     [HttpPost("register")]
-    public async Task<ActionResult> Register([FromBody] RegisterData data, CancellationToken cancellationToken)
+    public async Task<ActionResult> Register([FromForm] RegisterData data, CancellationToken cancellationToken)
     {
         var command = new RegisterUserCommand(data);
         var result = await mediator.Send(command, cancellationToken);

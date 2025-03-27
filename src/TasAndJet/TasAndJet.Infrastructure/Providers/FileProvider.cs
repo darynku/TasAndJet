@@ -69,6 +69,9 @@ public class FileProvider(
     }
     public string GeneratePreSignedUrl(string objectKey)
     {
+        if(Uri.IsWellFormedUriString(objectKey, UriKind.Absolute))
+            return objectKey;
+        
         var config = new AmazonS3Config()
         {
             ServiceURL = "http://localhost:9000",

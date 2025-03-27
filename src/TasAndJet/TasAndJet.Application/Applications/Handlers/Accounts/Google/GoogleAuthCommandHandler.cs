@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SharedKernel.Common;
 using SharedKernel.Common.Api;
+using TasAndJet.Application.Applications.Services.Accounts.UploadFile;
 using TasAndJet.Application.Events;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Domain.Entities.Account;
@@ -18,15 +19,13 @@ using GoogleOptions = TasAndJet.Infrastructure.Options.GoogleOptions;
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Google;
 
 public class GoogleAuthCommandHandler(
-    IOptions<GoogleOptions> googleOptions,
+    IUploadFileService uploadFileService,
     IJwtProvider jwtProvider,
     ApplicationDbContext context,
     IPublishEndpoint publishEndpoint,
     IValidator<GoogleAuthCommand> validator)
     : IRequestHandler<GoogleAuthCommand, Result<TokenResponse, Error>>
 {
-    private readonly GoogleOptions _googleOptions = googleOptions.Value;
-
     public async Task<Result<TokenResponse, Error>> Handle(GoogleAuthCommand request, CancellationToken cancellationToken)
     {
         await validator.ValidateAndThrowAsync(request, cancellationToken);
@@ -54,7 +53,7 @@ public class GoogleAuthCommandHandler(
             user = User.CreateGoogleUser(
                 Guid.NewGuid(),
                 payload.GivenName, 
-                payload.FamilyName,
+                payload.FamilyName ?? string.Empty,
                 payload.Email,
                 payload.Picture,
                 payload.Subject, 
@@ -67,19 +66,24 @@ public class GoogleAuthCommandHandler(
             
             if (role.Name == "Driver")  
             {
+                var vehiclePhoto = string.Empty;
+                
                 var vehicle = Vehicle.Create(
                     Guid.NewGuid(),
                     user.Id,
                     request.VehicleDto.VehicleType,
                     request.VehicleDto.Mark,
                     request.VehicleDto.Capacity,
-                    request.VehicleDto.PhotoUrl);
+                    vehiclePhoto);
 
                 await context.Vehicles.AddAsync(vehicle, cancellationToken);
                 
                 user.AddVehicle(vehicle);
                 
                 await context.SaveChangesAsync(cancellationToken);
+                
+                if(request.VehicleDto.PhotoUrl is not null)
+                    await uploadFileService.HandleVehiclePhoto(user.Id, request.VehicleDto.PhotoUrl, cancellationToken);
             }
         }
         else if (string.IsNullOrEmpty(user.GoogleId))
