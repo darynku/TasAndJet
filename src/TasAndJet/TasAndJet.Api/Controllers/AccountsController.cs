@@ -14,6 +14,7 @@ using TasAndJet.Application.Applications.Handlers.Accounts.Register;
 using TasAndJet.Application.Applications.Handlers.Accounts.SendSmsCode;
 using TasAndJet.Application.Applications.Handlers.Accounts.UploadFile;
 using TasAndJet.Application.Applications.Handlers.Accounts.VerifyCode;
+using TasAndJet.Application.Applications.Services.Accounts.Google;
 using TasAndJet.Contracts.Data.Accounts;
 
 namespace TasAndJet.Api.Controllers;
@@ -21,7 +22,8 @@ namespace TasAndJet.Api.Controllers;
 [SwaggerTag("Контроллер для работы с аутентификацией и авторизацией")]
 public class AccountsController(
     IMediator mediator,
-    CookieHelper cookieHelper) : ApplicationController
+    CookieHelper cookieHelper,
+    IGoogleAuthService googleAuthService) : ApplicationController
 {
     [HttpPost("register")]
     public async Task<ActionResult> Register([FromForm] RegisterData data, CancellationToken cancellationToken)
@@ -32,6 +34,7 @@ public class AccountsController(
         {
             return result.Error.ToResponse();
         }
+
         return Ok(result.IsSuccess);
     }
 
@@ -45,10 +48,10 @@ public class AccountsController(
             return result.Error.ToResponse();
 
         var setRefreshCookie = cookieHelper.SetRefreshSessionCookie(result.Value.RefreshToken);
-        
+
         if (setRefreshCookie.IsFailure)
             return setRefreshCookie.Error.ToResponse();
-            
+
         return Ok(result.Value);
     }
 
@@ -66,6 +69,7 @@ public class AccountsController(
         var preSignedUrl = await mediator.Send(request, cancellationToken);
         return Ok(preSignedUrl);
     }
+
     [HttpPost("send-2fa-code")]
     public async Task<IActionResult> SendTwoFactorCode([FromBody] SendSmsData data, CancellationToken cancellationToken)
     {
@@ -75,7 +79,8 @@ public class AccountsController(
     }
 
     [HttpPost("verify-2fa")]
-    public async Task<IActionResult> VerifyTwoFactorCode([FromBody] VerifyCodeData data, CancellationToken cancellationToken)
+    public async Task<IActionResult> VerifyTwoFactorCode([FromBody] VerifyCodeData data,
+        CancellationToken cancellationToken)
     {
         var command = new VerifyCodeCommand(data);
         var result = await mediator.Send(command, cancellationToken);
@@ -83,35 +88,16 @@ public class AccountsController(
         {
             return result.Error.ToResponse();
         }
+
         return Ok(result.IsSuccess);
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command,
+        CancellationToken cancellationToken)
     {
         var getRefreshSession = cookieHelper.GetRefreshSessionCookie();
-        
-        if (getRefreshSession.IsFailure)
-            return Unauthorized(getRefreshSession.Error);
-        
-        var result = await mediator.Send(command, cancellationToken);
-        
-        if(result.IsFailure)
-            return result.Error.ToResponse();
-        
-        var setRefreshCookie = cookieHelper.SetRefreshSessionCookie(result.Value.RefreshToken);
-        
-        if (setRefreshCookie.IsFailure)
-            return setRefreshCookie.Error.ToResponse();
-        
-        return Ok(result.Value);
-    }
 
-    [HttpPost("logout")]
-    public async Task<IActionResult> Logout(LogoutCommand command, CancellationToken cancellationToken)
-    {
-        var getRefreshSession = cookieHelper.GetRefreshSessionCookie();
-        
         if (getRefreshSession.IsFailure)
             return Unauthorized(getRefreshSession.Error);
 
@@ -119,28 +105,41 @@ public class AccountsController(
 
         if (result.IsFailure)
             return result.Error.ToResponse();
-        
+
+        var setRefreshCookie = cookieHelper.SetRefreshSessionCookie(result.Value.RefreshToken);
+
+        if (setRefreshCookie.IsFailure)
+            return setRefreshCookie.Error.ToResponse();
+
+        return Ok(result.Value);
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(LogoutCommand command, CancellationToken cancellationToken)
+    {
+        var getRefreshSession = cookieHelper.GetRefreshSessionCookie();
+
+        if (getRefreshSession.IsFailure)
+            return Unauthorized(getRefreshSession.Error);
+
+        var result = await mediator.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+
         var deleteRefreshCookie = cookieHelper.DeleteRefreshSessionCookie();
-        
+
         if (deleteRefreshCookie.IsFailure)
             return deleteRefreshCookie.Error.ToResponse();
 
         return Ok();
     }
-    
+
     [HttpGet("users")]
     public async Task<IActionResult> GetUsers([FromQuery] GetUsersQuery query, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
-    }
-
-    [HttpPost("google")]
-    public async Task<ActionResult> GoogleLogin([FromBody] GoogleAuthCommand command,
-        CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(command, cancellationToken);
-        return Ok(response);
     }
 
     [HttpGet("signin-google")]
@@ -149,13 +148,29 @@ public class AccountsController(
         return Ok("Success");
     }
 
-    [HttpPost("google-login")]
+    [HttpPost("google-register")]
     public async Task<IActionResult> SignInWithGoogle([FromBody] GoogleAuthRequest request)
     {
-        var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.PhoneNumber,  request.Region, request.Address, request.RoleId, request.VehicleDto));
+        var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.PhoneNumber, request.Region,
+            request.Address, request.RoleId, request.VehicleDto));
 
-        return result.IsSuccess 
-            ? Ok(result.Value) 
-            : BadRequest(result.Error.Message);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error.Message);
+    }
+
+    [HttpPost("google-login")]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+    {
+        var result = await googleAuthService.AuthenticateWithGoogle(request.GoogleToken);
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value); 
+        }
+
+        if (result.IsFailure)
+        {
+            return Unauthorized(result.Error.ToResponse());
+        }
+
+        return BadRequest();
     }
 }

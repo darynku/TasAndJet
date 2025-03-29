@@ -2,6 +2,7 @@
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TasAndJet.Application.Applications.Services.Accounts.Google;
 using TasAndJet.Application.Applications.Services.Accounts.UploadFile;
 using TasAndJet.Application.Consumers;
 using TasAndJet.Infrastructure.Options;
@@ -29,7 +30,9 @@ public static class DependencyInjection
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddScoped<IUploadFileService, UploadFileService>();
+        services
+            .AddScoped<IUploadFileService, UploadFileService>()
+            .AddScoped<IGoogleAuthService, GoogleAuthService>();
 
         return services;
     }

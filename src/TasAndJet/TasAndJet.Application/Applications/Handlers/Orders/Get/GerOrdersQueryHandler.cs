@@ -5,6 +5,7 @@ using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Infrastructure;
 
 namespace TasAndJet.Application.Applications.Handlers.Orders.Get;
+
 public class GetOrdersQueryHandler(ApplicationDbContext context) 
     : IRequestHandler<GetOrdersQuery, PagedList<OrderResponse>> 
 {
@@ -55,7 +56,7 @@ public class GetOrdersQueryHandler(ApplicationDbContext context)
         return ConvertToResponse(orderPagedList);
     }
 
-    private PagedList<OrderResponse> ConvertToResponse(PagedList<Order> orderPagedList)
+    private static PagedList<OrderResponse> ConvertToResponse(PagedList<Order> orderPagedList)
     {
         var orders = orderPagedList.Items
             .Select(order => new OrderResponse

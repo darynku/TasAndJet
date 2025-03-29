@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using TasAndJet.Api;
@@ -10,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
 
 builder.Services.AddEndpointsApiExplorer();
 //регистрация зависимостей 
@@ -45,6 +47,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseHttpsRedirection();
+
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
