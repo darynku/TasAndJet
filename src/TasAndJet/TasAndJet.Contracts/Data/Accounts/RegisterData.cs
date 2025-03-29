@@ -15,8 +15,5 @@ public class RegisterData
     public required string Address { get; set; }
     public required int RoleId { get; set; }
     
-    public required string Mark { get; set; }
-    public required VehicleType VehicleType { get; set; }
-    public required double Capacity { get; set; }
-    public required IFormFile? PhotoUrl { get; set; }
+
 }

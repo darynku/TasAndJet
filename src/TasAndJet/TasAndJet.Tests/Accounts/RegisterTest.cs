@@ -27,10 +27,6 @@ public class RegisterTest(IntegrationTestWebFactory factory) : TestsBase(factory
             PhoneNumber = "+77784928492",
             Region = "asdada",
             RoleId = 9, // Ролей всего 3
-            Mark = "Brbrbrb",
-            Capacity = 90.0,
-            VehicleType = VehicleType.Forklift,
-            PhotoUrl = vehiclePhoto
         });
         
         // Act

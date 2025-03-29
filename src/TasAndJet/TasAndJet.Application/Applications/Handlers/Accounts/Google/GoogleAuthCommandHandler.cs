@@ -63,28 +63,6 @@ public class GoogleAuthCommandHandler(
                 role);
             
             await context.Users.AddAsync(user, cancellationToken);
-            
-            if (role.Name == "Driver")  
-            {
-                var vehiclePhoto = string.Empty;
-                
-                var vehicle = Vehicle.Create(
-                    Guid.NewGuid(),
-                    user.Id,
-                    request.VehicleDto.VehicleType,
-                    request.VehicleDto.Mark,
-                    request.VehicleDto.Capacity,
-                    vehiclePhoto);
-
-                await context.Vehicles.AddAsync(vehicle, cancellationToken);
-                
-                user.AddVehicle(vehicle);
-                
-                await context.SaveChangesAsync(cancellationToken);
-                
-                if(request.VehicleDto.PhotoUrl is not null)
-                    await uploadFileService.HandleVehiclePhoto(user.Id, request.VehicleDto.PhotoUrl, cancellationToken);
-            }
         }
         else if (string.IsNullOrEmpty(user.GoogleId))
         {

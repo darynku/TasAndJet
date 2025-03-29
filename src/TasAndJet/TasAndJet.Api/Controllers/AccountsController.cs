@@ -4,6 +4,7 @@ using SharedKernel.Common.Api;
 using Swashbuckle.AspNetCore.Annotations;
 using TasAndJet.Api.Helpers;
 using TasAndJet.Api.Requests;
+using TasAndJet.Application.Applications.Handlers.Accounts.AddVehicle;
 using TasAndJet.Application.Applications.Handlers.Accounts.Get;
 using TasAndJet.Application.Applications.Handlers.Accounts.GetPreSignedUrl;
 using TasAndJet.Application.Applications.Handlers.Accounts.Google;
@@ -151,8 +152,7 @@ public class AccountsController(
     [HttpPost("google-register")]
     public async Task<IActionResult> SignInWithGoogle([FromBody] GoogleAuthRequest request)
     {
-        var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.PhoneNumber, request.Region,
-            request.Address, request.RoleId, request.VehicleDto));
+        var result = await mediator.Send(new GoogleAuthCommand(request.GoogleToken, request.PhoneNumber, request.Region, request.Address, request.RoleId));
 
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error.Message);
     }
@@ -172,5 +172,13 @@ public class AccountsController(
         }
 
         return BadRequest();
+    }
+
+    [HttpPost("add-vehicle")]
+    public async Task<IActionResult> AddVehicleToDriver(AddVehicleToDriverCommand command,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return Ok();
     }
 }
