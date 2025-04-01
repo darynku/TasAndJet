@@ -53,6 +53,10 @@ public static class Errors
 
     public static class User
     {
+        public static Error AccessDenied()
+        {
+            return Error.Validation("user.access.denied", "Неверная роль, доступ отклонен");
+        }
         public static Error InvalidCredentials()
         {
             return Error.Validation("credentials.is.invalid", "Неверные учетные данные");

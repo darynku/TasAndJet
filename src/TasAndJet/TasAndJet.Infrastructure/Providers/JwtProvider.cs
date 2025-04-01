@@ -22,18 +22,18 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions, ApplicationDbContext c
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.GivenName, user.FirstName),
-            new Claim(ClaimTypes.Surname, user.LastName),
-            new Claim(ClaimTypes.Role, user.Role.Name),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim("firstName", user.FirstName),  // Кастомный claim
+            new Claim("lastName", user.LastName),
+            new Claim("role", user.Role.Name),      // Важно для [Authorize(Roles = "Driver")]
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Уникальный ID токена
         };
 
         var token = new JwtSecurityToken(
             signingCredentials: signingCredentials,
             claims: claims,
-            expires: DateTime.Now.AddMinutes(_jwtOptions.Expires));
+            expires: DateTime.Now.AddHours(_jwtOptions.Expires));
         
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
         return tokenString;

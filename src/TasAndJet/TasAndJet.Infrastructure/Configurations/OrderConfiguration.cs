@@ -16,11 +16,11 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasMaxLength(500);
 
         builder.Property(o => o.PickupAddress)
-            .IsRequired()
+            .IsRequired(false)
             .HasMaxLength(255);
 
         builder.Property(o => o.DestinationAddress)
-            .IsRequired()
+            .IsRequired(false)
             .HasMaxLength(255);
 
         builder.Property(o => o.OrderDate)
@@ -28,8 +28,15 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.Property(o => o.Status)
             .HasConversion<string>()
-            .IsRequired();
+            .IsRequired();        
         
+        builder.Property(o => o.City)
+            .HasConversion<string>()
+            .IsRequired();
+
+        builder.Property(o => o.ImageKeys)
+            .IsRequired(false);
+
     }
 }
 

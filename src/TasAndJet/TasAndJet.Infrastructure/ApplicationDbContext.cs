@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TasAndJet.Domain.Entities;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Domain.Entities.Reviews;
@@ -20,6 +21,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

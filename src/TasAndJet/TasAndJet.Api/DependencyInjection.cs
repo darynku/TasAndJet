@@ -96,32 +96,42 @@ public static class DependencyInjection
         services.AddSwaggerGen(c =>
         {
             c.EnableAnnotations();
-            c.SwaggerDoc("v1", new OpenApiInfo
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "TasAndJet API", Version = "v1" });
+
+            
+            var securityScheme = new OpenApiSecurityScheme
             {
-                Title = "My API", Version = "v1",
-            });
-            c.AddSecurityDefinition(
-                "Bearer",
-                new OpenApiSecurityScheme
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Введите JWT токен в формате: Bearer {токен}",
+                Reference = new OpenApiReference
                 {
-                    In = ParameterLocation.Header,
-                    Description = "Please insert JWT with Bearer into field",
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey,
-                });
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            };
+
+            c.AddSecurityDefinition("Bearer", securityScheme);
+
+            var securityRequirement = new OpenApiSecurityRequirement
             {
                 {
                     new OpenApiSecurityScheme
                     {
                         Reference = new OpenApiReference
                         {
-                            Type = ReferenceType.SecurityScheme, Id = "Bearer",
-                        },
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
                     },
                     []
-                },
-            });
+                }
+            };
+
+            c.AddSecurityRequirement(securityRequirement);
         });
         return services;
     }
@@ -140,6 +150,9 @@ public static class DependencyInjection
         services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                
             })
             .AddJwtBearer(authenticationScheme: JwtBearerDefaults.AuthenticationScheme,
                 options =>

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TasAndJet.Application.Applications.Services.Accounts.Google;
 using TasAndJet.Application.Applications.Services.Accounts.UploadFile;
 using TasAndJet.Application.Consumers;
+using TasAndJet.Application.Hubs;
 using TasAndJet.Infrastructure.Options;
 
 namespace TasAndJet.Application;
@@ -18,7 +19,8 @@ public static class DependencyInjection
             .AddMediator()
             .AddValidators()
             .AddCache()
-            .AddMessageBus(configuration);
+            .AddMessageBus(configuration)
+            .AddSignalr();
         
         return services;
     }
@@ -45,7 +47,7 @@ public static class DependencyInjection
 
     private static IServiceCollection AddValidators(this IServiceCollection services)
     {
-        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+        services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
         return services;
     }
     
@@ -68,8 +70,18 @@ public static class DependencyInjection
                 cfg.ConfigureEndpoints(context);
             });
         });
-
         return services;
     }
-
+    private static IServiceCollection AddSignalr(this IServiceCollection services)
+    {
+        services
+            .AddSignalR()
+            .AddJsonProtocol()
+            .AddHubOptions<NotificationHub>(options =>
+            {
+                options.EnableDetailedErrors = true;
+            });
+        
+        return services;
+    }
 }

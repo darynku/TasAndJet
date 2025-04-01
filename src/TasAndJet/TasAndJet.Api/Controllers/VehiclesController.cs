@@ -18,9 +18,9 @@ public class VehiclesController(IMediator mediator) : ApplicationController
     }
     
     [HttpGet("{vehicleId}/photo")]
-    public async Task<IActionResult> GetVehiclePhoto(Guid userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetVehiclePhoto(Guid vehicleId, CancellationToken cancellationToken)
     {
-        var request = new GetVehiclePhotoCommand(userId);
+        var request = new GetVehiclePhotoCommand(vehicleId);
         var preSignedUrl = await mediator.Send(request, cancellationToken);
         return Ok(preSignedUrl);
     }

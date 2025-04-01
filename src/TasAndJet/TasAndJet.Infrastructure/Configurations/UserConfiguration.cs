@@ -87,7 +87,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .OnDelete(DeleteBehavior.Cascade);
         
         // 🔹 Индексы (уникальность)
-        /*builder.HasIndex(user => user.Email).IsUnique();
-        builder.HasIndex(user => user.PhoneNumber).IsUnique();*/
+        builder.HasIndex(user => user.Id);
+        builder.HasIndex(user => user.Email);
+        builder.HasIndex(user => user.PhoneNumber);
     }
 }

@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using TasAndJet.Api;
 using TasAndJet.Api.Extensions;
+using TasAndJet.Application.Hubs;
 using TasAndJet.Infrastructure;
 using TasAndJet.Infrastructure.Options;
 
@@ -20,7 +22,8 @@ builder.Services.AddOptions();
 
 builder.Services.AddProgramDependencies(builder.Configuration);
 
-builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+// builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
 builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
@@ -43,13 +46,19 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
     await app.AddMigrationAsync();
 
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHub<NotificationHub>("/notificationHub", options =>
+{
+    options.Transports = HttpTransportType.WebSockets;
+});
+
 app.UseHttpsRedirection();
 
-
-app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 app.Run();

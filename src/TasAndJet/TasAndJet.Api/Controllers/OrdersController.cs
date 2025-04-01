@@ -1,35 +1,33 @@
-﻿using CSharpFunctionalExtensions;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Common;
 using SharedKernel.Common.Api;
 using Swashbuckle.AspNetCore.Annotations;
 using TasAndJet.Application.Applications.Handlers.Orders.Assign;
 using TasAndJet.Application.Applications.Handlers.Orders.Cancel;
 using TasAndJet.Application.Applications.Handlers.Orders.Complete;
 using TasAndJet.Application.Applications.Handlers.Orders.Confirm;
-using TasAndJet.Application.Applications.Handlers.Orders.Create;
+using TasAndJet.Application.Applications.Handlers.Orders.CreateFreight;
+using TasAndJet.Application.Applications.Handlers.Orders.CreateRental;
 using TasAndJet.Application.Applications.Handlers.Orders.Get;
 using TasAndJet.Application.Applications.Handlers.Orders.GetById;
-using TasAndJet.Contracts.Data.Orders;
-using TasAndJet.Domain.Entities.Orders;
-using TasAndJet.Infrastructure.Providers;
-using TasAndJet.Infrastructure.Providers.Abstract;
-
 namespace TasAndJet.Api.Controllers;
 
 
 [SwaggerTag("Контроллер для работы с заказами")]
-public class OrdersController(
-    IMediator mediator,
-    IFileProvider fileProvider) : ApplicationController
+public class OrdersController(IMediator mediator) : ApplicationController
 {
-    [HttpPost]
-    public async Task<IActionResult> CreateOrder(OrderData data, CancellationToken cancellationToken)
+    [HttpPost("rental")]
+    public async Task<IActionResult> CreateRentalOrder([FromForm] CreateRentalOrderCommand command, CancellationToken cancellationToken)
     {
-        var command = new CreateOrderCommand(data);
-        var result = await mediator.Send(command, cancellationToken);
-        return Ok(result);
+        var id = await mediator.Send(command, cancellationToken);
+        return Ok(id);
+    }
+
+    [HttpPost("freight")]
+    public async Task<IActionResult> CreateFreightOrder([FromForm] CreateFreightOrderCommand command, CancellationToken cancellationToken)
+    {
+        var id = await mediator.Send(command, cancellationToken);
+        return Ok(id);
     }
     [HttpGet]
     public async Task<IActionResult> GetOrders([FromQuery] GetOrdersQuery query, CancellationToken cancellationToken)
@@ -49,6 +47,7 @@ public class OrdersController(
 
         return Ok(result.Value);
     }
+    
     [HttpPost("{orderId}/assign-driver/{driverId}")]
     public async Task<IActionResult> AssignDriver(Guid orderId, Guid driverId, CancellationToken cancellationToken)
     {

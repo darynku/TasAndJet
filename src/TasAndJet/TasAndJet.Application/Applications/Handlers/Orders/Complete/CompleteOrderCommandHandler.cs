@@ -12,9 +12,9 @@ public class CompleteOrderCommandHandler(ApplicationDbContext context) : IReques
         var order = await context.Orders
                         .FirstOrDefaultAsync(o => o.Id == request.OrderId, cancellationToken)
                     ?? throw new NotFoundException("Заказ не найден");
-
+        
         order.Complete();
-
+        
         await context.SaveChangesAsync(cancellationToken);
     }
 }

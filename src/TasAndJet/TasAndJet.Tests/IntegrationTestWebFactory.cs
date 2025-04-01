@@ -8,19 +8,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using Respawn;
+using Serilog;
 using TasAndJet.Api;
 using TasAndJet.Application.Consumers;
 using TasAndJet.Infrastructure;
 using Testcontainers.Minio;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
+using ILogger = Serilog.ILogger;
 
 namespace TasAndJet.Tests;
 
 public class IntegrationTestWebFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    public IntegrationTestWebFactory()
+    {
+        WriteLogsToSeq();
+    }
+    
     private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder()
         .WithImage("postgres:latest")
         .WithDatabase("test")
@@ -46,7 +54,17 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>, IAsyncL
     
     public async Task InitializeAsync()
     {
+        Console.WriteLine("Запуск контейнера с базой данных...");
         await _dbContainer.StartAsync();
+        Console.WriteLine("Контейнер запущен!");
+
+        // Получаем логи контейнера
+        var (stdout, stderr) = await _dbContainer.GetLogsAsync();
+
+        Log.Information("[DB Container Log STDOUT] {Stdout}", stdout);
+        Log.Error("[DB Container Log STDERR] {Stderr}", stderr);
+        
+
         await _rabbitMqContainer.StartAsync();
         await _minioContainer.StartAsync();
         
@@ -145,4 +163,14 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>, IAsyncL
             return new AmazonS3Client("minioadmin", "minioadmin", config);
         });
     }
+    
+    private void WriteLogsToSeq()
+    {
+        Log.Logger = new LoggerConfiguration() // Максимальный уровень логирования
+            .WriteTo.Console()
+            .WriteTo.Debug()
+            .WriteTo.Seq("http://localhost:5341") // Отправляем логи в Seq
+            .CreateLogger();
+    }
 }
+

@@ -5,6 +5,7 @@ using SharedKernel.Common.Api;
 using Swashbuckle.AspNetCore.Annotations;
 using TasAndJet.Application.Applications.Handlers.Accounts.GetClient;
 using TasAndJet.Application.Applications.Handlers.Accounts.GetDriver;
+using TasAndJet.Application.Applications.Handlers.Accounts.Update;
 
 namespace TasAndJet.Api.Controllers;
 
@@ -34,5 +35,14 @@ public class ProfilesController(IMediator mediatr) : ApplicationController
         }
         return Ok(result.Value);
             
+    }
+
+    [HttpPut("{userId:guid}")]
+    public async Task<IActionResult> UpdateUserProfile([FromRoute] Guid userId, UpdateData data,
+        CancellationToken cancellationToken)
+    {
+        var request = new UpdateUserProfileRequest(userId, data);
+        await mediatr.Send(request, cancellationToken);
+        return NoContent();
     }
 }

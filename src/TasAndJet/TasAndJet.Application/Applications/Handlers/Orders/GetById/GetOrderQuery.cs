@@ -7,4 +7,4 @@ using TasAndJet.Domain.Entities.Orders;
 
 namespace TasAndJet.Application.Applications.Handlers.Orders.GetById;
 
-public record GetOrderQuery(Guid OrderId) : IRequest<Result<OrderResponse, Error>>;
+public record GetOrderQuery(Guid OrderId) : IRequest<Result<OrderDetailsResponse, Error>>;

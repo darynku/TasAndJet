@@ -48,11 +48,6 @@ public class AccountsController(
         if (result.IsFailure)
             return result.Error.ToResponse();
 
-        var setRefreshCookie = cookieHelper.SetRefreshSessionCookie(result.Value.RefreshToken);
-
-        if (setRefreshCookie.IsFailure)
-            return setRefreshCookie.Error.ToResponse();
-
         return Ok(result.Value);
     }
 

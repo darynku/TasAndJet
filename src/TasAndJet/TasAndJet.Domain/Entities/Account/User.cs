@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using SharedKernel.Common.Api;
+using TasAndJet.Domain.Entities.Enums;
 using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Domain.Entities.Reviews;
 using TasAndJet.Domain.Entities.Services;
@@ -100,10 +101,30 @@ public class User
         return new User(id, firstName, lastName, email, avatarUrl,null, googleId, phoneNumber, region, address, role);
     }
 
-    public Order CreateOrder(Guid id, string description, string pickupAddress, string destinationAddress,
-        decimal totalPrice, VehicleType vehicleType, OrderType orderType)
+    public Order CreateRentalOrder(
+        Guid id,
+        string description,
+        DateTime rentalStartDate,
+        DateTime rentalEndDate,
+        decimal totalPrice,
+        VehicleType vehicleType,
+        KazakhstanCity city)
     {
-        return Order.Create(id, Id, description, pickupAddress, destinationAddress, totalPrice, vehicleType, orderType, Region);
+        return Order.CreateRentalOrder(id, Id, description, rentalStartDate, rentalEndDate, totalPrice, vehicleType, city, Region);
+    }    
+    
+    public Order CreateFreightOrder(
+        Guid id,
+        string description,
+        string pickupAddress,
+        string destinationAddress,
+        decimal cargoWeight,
+        string cargoType,
+        decimal totalPrice,
+        VehicleType vehicleType,
+        KazakhstanCity city)
+    {
+        return Order.CreateFreightOrder(id, Id, description, pickupAddress, destinationAddress, cargoWeight, cargoType, totalPrice, vehicleType, city, Region);
     }
     
     public void LinkGoogleAccount(string googleId)

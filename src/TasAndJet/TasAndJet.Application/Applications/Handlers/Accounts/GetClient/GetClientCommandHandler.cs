@@ -5,6 +5,8 @@ using SharedKernel.Common;
 using SharedKernel.Common.Api;
 using TasAndJet.Contracts.Dto;
 using TasAndJet.Contracts.Response;
+using TasAndJet.Domain.Entities.Account;
+using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Infrastructure;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.GetClient;
@@ -27,11 +29,13 @@ public class GetClientCommandHandler(ApplicationDbContext context)
                 Address = x.Address,
                 Role = x.Role,
                 AvatarUrl = x.AvatarUrl,
-                Orders = x.ClientOrders.Select(o => new OrderDto
+                Orders = x.ClientOrders
+                    .Where(o => o.Status == OrderStatus.Completed)
+                    .Select(o => new OrderDto
                 {
                     Id = o.Id,
                     ClientName = x.FirstName + " " + x.LastName,
-                    DriverName = o.Driver.FirstName + " " + o.Driver.LastName,
+                    DriverName = o.Driver!.FirstName + " " + o.Driver.LastName,
                     Description = o.Description,
                     PickupAddress = o.PickupAddress,
                     DestinationAddress = o.DestinationAddress,
@@ -49,6 +53,11 @@ public class GetClientCommandHandler(ApplicationDbContext context)
         if (user == null)
         {
             return Errors.User.InvalidCredentials();
+        }
+
+        if (user.Role.Name != Role.User)
+        {
+            return Errors.User.AccessDenied();
         }
 
         return Result.Success<ProfileResponse, Error>(user);

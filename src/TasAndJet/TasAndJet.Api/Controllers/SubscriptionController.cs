@@ -28,6 +28,7 @@ public class SubscriptionController : ApplicationController
     [HttpPost("create-checkout-session")]
     public async Task<IActionResult> CreateCheckoutSession(CreateSubscriptionRequest request, CancellationToken cancellationToken)
     {
+        var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
         try
         {
             var user = await _dbContext.Users
@@ -39,6 +40,7 @@ public class SubscriptionController : ApplicationController
 
             if (string.IsNullOrEmpty(user.StripeCustomerId))
             {
+                
                 var customerService = new CustomerService();
                 var customer = await customerService.CreateAsync(new CustomerCreateOptions
                 {
@@ -49,12 +51,8 @@ public class SubscriptionController : ApplicationController
 
                 user.SetStripeCustomerId(customer.Id);
         
+                _logger.LogInformation("Stripe customer created {CustomerId}", customer.Id);
                 await _dbContext.SaveChangesAsync(cancellationToken);
-            }
-
-            if (user.UserSubscription.IsPremium())
-            {
-                return BadRequest("У пользователя уже есть активная подписка.");
             }
 
             var options = new SessionCreateOptions
@@ -75,13 +73,19 @@ public class SubscriptionController : ApplicationController
             };
 
             var service = new SessionService();
-            Session session = await service.CreateAsync(options, cancellationToken: cancellationToken);
-
+            var session = await service.CreateAsync(options, cancellationToken: cancellationToken);
+            
+            await transaction.CommitAsync(cancellationToken);
+            
+            _logger.LogInformation("Transaction commited");
+            
             return Ok(new CheckoutSessionResponse(session.Id, session.Url));
         }
         catch (StripeException ex)
         {
             _logger.LogError(ex, "Error while creating checkout session {Message}", ex.Message);
+            
+            await transaction.RollbackAsync(cancellationToken);
             
             return BadRequest("Ошибка при выполнении подписки");
         }
@@ -94,8 +98,10 @@ public class SubscriptionController : ApplicationController
     public async Task<IActionResult> Webhook(CancellationToken cancellationToken)
     {
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync(cancellationToken);
+        _logger.LogInformation("Json created");
+
         Event stripeEvent;
-        
+
         try
         {
             stripeEvent = EventUtility.ConstructEvent(
@@ -103,48 +109,60 @@ public class SubscriptionController : ApplicationController
                 Request.Headers["Stripe-Signature"],
                 _stripeOptions.WebhookSecret
             );
+
+            _logger.LogInformation("Stripe event created: {Event}", stripeEvent.Type);
         }
         catch (StripeException ex)
         {
             _logger.LogError(ex, "Webhook error: {Message}", ex.Message);
-            return BadRequest( "Webhook error");
+            return BadRequest("Webhook error");
         }
 
         switch (stripeEvent.Type)
         {
-            case EventTypes.InvoicePaymentSucceeded:
-                
-                var firstInvoice = stripeEvent.Data.Object as Invoice;
-                
-                if(firstInvoice is null) break;
-                
-                var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.StripeCustomerId == firstInvoice.CustomerId, cancellationToken);
-                
-                if (user == null) break;
+            case "invoice.payment_succeeded":
+            {
+                var invoice = stripeEvent.Data.Object as Invoice;
+                if (invoice is null)
+                    break;
+
+                var user = await _dbContext.Users.FirstOrDefaultAsync(
+                    u => u.StripeCustomerId == invoice.CustomerId,
+                    cancellationToken
+                );
+                if (user is null)
+                    break;
 
                 var existingSubscription = await _dbContext.UserSubscriptions
-                    .FirstOrDefaultAsync(s => s.StripeSubscriptionId == firstInvoice.SubscriptionId, cancellationToken);
+                    .FirstOrDefaultAsync(s => s.StripeSubscriptionId == invoice.SubscriptionId, cancellationToken);
 
                 if (existingSubscription == null)
                 {
-                    var subscriptionStart = firstInvoice.Lines.Data[0].Period.Start;
-                    var subscriptionEnd = firstInvoice.Lines.Data[0].Period.End;
-                    
+                    var subscriptionStart = invoice.Lines.Data[0].Period.Start;
+                    var subscriptionEnd = invoice.Lines.Data[0].Period.End;
+
                     var newSubscription = UserSubscription.Create(
                         Guid.NewGuid(),
                         user.Id,
-                        firstInvoice.SubscriptionId, 
+                        invoice.SubscriptionId,
                         subscriptionStart,
-                        subscriptionEnd);
-                    
-                    await _dbContext.UserSubscriptions.AddAsync(newSubscription);
+                        subscriptionEnd
+                    );
+
+                    _dbContext.UserSubscriptions.Add(newSubscription);
                     await _dbContext.SaveChangesAsync(cancellationToken);
+
+                    _logger.LogInformation("Создана новая подписка для пользователя {UserId}", user.Id);
                 }
+
                 break;
-            
-            case EventTypes.InvoicePaymentFailed:
+            }
+
+            case "invoice.payment_failed":
+            {
                 var invoice = stripeEvent.Data.Object as Invoice;
-                if (invoice?.Customer == null) break;
+                if (invoice is null)
+                    break;
 
                 var sub = await _dbContext.UserSubscriptions
                     .FirstOrDefaultAsync(s => s.StripeSubscriptionId == invoice.SubscriptionId, cancellationToken);
@@ -154,11 +172,27 @@ public class SubscriptionController : ApplicationController
                     var subscriptionStart = invoice.Lines.Data[0].Period.Start;
                     sub.SetEndDate(subscriptionStart);
                     await _dbContext.SaveChangesAsync(cancellationToken);
+
+                    _logger.LogInformation("Подписка {SubId} завершена по причине неудачного платежа", sub.Id);
                 }
+
+                break;
+            }
+
+            case "customer.subscription.updated":
+            case "customer.subscription.created":
+                // Эти события можешь обработать при необходимости
+                _logger.LogInformation("Subscription event (created/updated) received");
+                break;
+
+            default:
+                _logger.LogInformation("Unhandled Stripe event type: {EventType}", stripeEvent.Type);
                 break;
         }
+
         return Ok();
     }
+
 
     [HttpGet("check/{userId}")]
     public async Task<IActionResult> CheckSubscription([FromRoute] Guid userId, CancellationToken cancellationToken)

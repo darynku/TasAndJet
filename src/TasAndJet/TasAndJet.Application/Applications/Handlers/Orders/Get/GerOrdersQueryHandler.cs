@@ -3,10 +3,11 @@ using SharedKernel.Paged;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Infrastructure;
+using TasAndJet.Infrastructure.Providers.Abstract;
 
 namespace TasAndJet.Application.Applications.Handlers.Orders.Get;
 
-public class GetOrdersQueryHandler(ApplicationDbContext context) 
+public class GetOrdersQueryHandler(ApplicationDbContext context, IFileProvider fileProvider) 
     : IRequestHandler<GetOrdersQuery, PagedList<OrderResponse>> 
 {
     /// <summary>
@@ -56,21 +57,47 @@ public class GetOrdersQueryHandler(ApplicationDbContext context)
         return ConvertToResponse(orderPagedList);
     }
 
-    private static PagedList<OrderResponse> ConvertToResponse(PagedList<Order> orderPagedList)
+    private PagedList<OrderResponse> ConvertToResponse(PagedList<Order> orderPagedList)
     {
         var orders = orderPagedList.Items
-            .Select(order => new OrderResponse
+            .Select(order =>
             {
-                OrderId = order.Id,
-                ClientId = order.ClientId,
-                Description = order.Description,
-                PickupAddress = order.PickupAddress,
-                DestinationAddress = order.DestinationAddress,
-                OrderDate = order.OrderDate,
-                Status = order.Status,
-                VehicleType= order.VehicleType,
-                TotalPrice = order.TotalPrice,
-                Region = order.Region
+                var response = new OrderResponse
+                {
+                    OrderId = order.Id,
+                    ClientId = order.ClientId,
+                    Description = order.Description,
+                    PickupAddress = order.PickupAddress,
+                    DestinationAddress = order.DestinationAddress,
+                    OrderDate = order.OrderDate,
+                    Status = order.Status,
+                    VehicleType = order.VehicleType,
+                    Region = order.Region,
+                    TotalPrice = order.TotalPrice,
+                    City = order.City,
+                    OrderType = order.OrderType
+                };
+
+                if (order.OrderType == OrderType.Rental)
+                {
+                    response.RentalStartDate = order.RentalStartDate;
+                    response.RentalEndDate = order.RentalEndDate;
+                    response.ImageUrls = order.ImageKeys
+                        .Select(fileProvider.GeneratePreSignedUrl)
+                        .ToList();
+                }
+                // Только для грузоперевозки
+                else if (order.OrderType == OrderType.Freight)
+                {
+                    response.CargoWeight = order.CargoWeight;
+                    response.CargoType = order.CargoType;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+
+                return response;
             }).ToList();
 
         return new PagedList<OrderResponse>()
@@ -81,4 +108,5 @@ public class GetOrdersQueryHandler(ApplicationDbContext context)
             TotalCount = orderPagedList.TotalCount
         };
     }
+
 }

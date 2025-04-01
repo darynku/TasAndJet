@@ -65,11 +65,10 @@ public class FileProvider(
     {
         if (Uri.IsWellFormedUriString(objectKey, UriKind.Absolute))
             return objectKey;
-        
 
         var config = new AmazonS3Config()
         {
-            ServiceURL = $"http://localhost:9000", 
+            ServiceURL = $"http://192.168.0.17:9000", 
             ForcePathStyle = true,
         };
 
