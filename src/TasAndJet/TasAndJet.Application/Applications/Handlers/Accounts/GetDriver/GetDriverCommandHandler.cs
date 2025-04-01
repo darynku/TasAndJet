@@ -5,6 +5,7 @@ using SharedKernel.Common;
 using SharedKernel.Common.Api;
 using TasAndJet.Contracts.Dto;
 using TasAndJet.Contracts.Response;
+using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Infrastructure;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.GetDriver;
@@ -29,7 +30,7 @@ public class GetDriverCommandHandler(ApplicationDbContext context) : IRequestHan
                 Orders = x.DriverOrders.Select(o => new OrderDto
                 {
                     Id = o.Id,
-                    ClientName = x.FirstName + " " + x.LastName,
+                    ClientName = o.Client.FirstName + " " + o.Client.LastName,
                     DriverName = o.Driver.FirstName + " " + o.Driver.LastName,
                     Description = o.Description,
                     PickupAddress = o.PickupAddress,
@@ -50,6 +51,10 @@ public class GetDriverCommandHandler(ApplicationDbContext context) : IRequestHan
             return Errors.User.InvalidCredentials();
         }
 
+        if (user.Role.Name != Role.Driver)
+        {
+            return Errors.User.AccessDenied();
+        }
         return Result.Success<ProfileResponse, Error>(user);
     }
 }

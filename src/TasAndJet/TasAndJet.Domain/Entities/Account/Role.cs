@@ -3,7 +3,7 @@
 public class Role 
 {
     public const string Driver = "Driver";
-    public const string Client = "Client";
+    public const string User = "User";
     private Role()
     {
     }

@@ -69,7 +69,7 @@ public class FileProvider(
 
         var config = new AmazonS3Config()
         {
-            ServiceURL = $"http://localhost:9000", 
+            ServiceURL = $"http://192.168.0.17:9000", 
             ForcePathStyle = true,
         };
 

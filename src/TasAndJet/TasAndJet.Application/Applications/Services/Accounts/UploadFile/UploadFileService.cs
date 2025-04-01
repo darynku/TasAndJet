@@ -24,7 +24,10 @@ public class UploadFileService(ApplicationDbContext context, IFileProvider fileP
             throw new ArgumentException("Файл пуст");
 
         // Валидация: файл должен быть изображением
-        if (!fileRequest.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+        var fileExtension = Path.GetExtension(fileRequest.FileName).ToLowerInvariant();
+        
+        if (!allowedExtensions.Contains(fileExtension))
             throw new ArgumentException("Файл должен быть изображением (например, JPEG, PNG, GIF и т.д.)");
 
         // Валидация: максимальный размер файла (например, 5 МБ)

@@ -13,8 +13,12 @@ public class AssignDriverCommandHandler(ApplicationDbContext context) : IRequest
                         .FirstOrDefaultAsync(o => o.Id == request.OrderId, cancellationToken)
                     ?? throw new NotFoundException("Заказ не найден");
 
+        var driver = await context.Users
+                         .FirstOrDefaultAsync(o => o.Id == request.DriverId, cancellationToken)
+                     ?? throw new NotFoundException("Водитель не найден");
+        
+        driver.AddDriverOrder(order);
         order.AssignDriver(request.DriverId);
-
         await context.SaveChangesAsync(cancellationToken);
     }
 }

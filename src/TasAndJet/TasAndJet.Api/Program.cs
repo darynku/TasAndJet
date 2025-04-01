@@ -21,6 +21,7 @@ builder.Services.AddOptions();
 builder.Services.AddProgramDependencies(builder.Configuration);
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
 builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
@@ -47,7 +48,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseHttpsRedirection();
-
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
