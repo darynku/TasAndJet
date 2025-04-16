@@ -15,6 +15,7 @@ using TasAndJet.Api.Helpers;
 using TasAndJet.Application;
 using TasAndJet.Application.Clients;
 using TasAndJet.Application.Clients.Notification;
+using TasAndJet.Application.Clients.Notifications;
 using TasAndJet.Application.Consumers;
 using TasAndJet.Infrastructure;
 using TasAndJet.Infrastructure.Options;
