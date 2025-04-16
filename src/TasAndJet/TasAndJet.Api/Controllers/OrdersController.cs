@@ -29,6 +29,7 @@ public class OrdersController(IMediator mediator) : ApplicationController
         var id = await mediator.Send(command, cancellationToken);
         return Ok(id);
     }
+    
     [HttpGet]
     public async Task<IActionResult> GetOrders([FromQuery] GetOrdersQuery query, CancellationToken cancellationToken)
     {
