@@ -35,6 +35,8 @@ public class AddVehicleToDriverCommandHandler(ApplicationDbContext context, IUpl
             request.UserId,
             request.VehicleType,
             request.Mark,
+            request.Number,
+            request.Colour,
             request.Capacity,
             vehiclePhoto);
 

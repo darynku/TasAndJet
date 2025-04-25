@@ -28,7 +28,7 @@ public class GoogleAuthCommandHandler(
 {
     public async Task<Result<TokenResponse, Error>> Handle(GoogleAuthCommand request, CancellationToken cancellationToken)
     {
-        await validator.ValidateAndThrowAsync(request, cancellationToken);
+        // await validator.ValidateAndThrowAsync(request, cancellationToken);
         
         GoogleJsonWebSignature.Payload payload;
         try

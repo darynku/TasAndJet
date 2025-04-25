@@ -6,4 +6,4 @@ using TasAndJet.Contracts.Response;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.GetDriver;
 
-public record GetDriverCommand(Guid Id) : IRequest<Result<ProfileResponse, Error>>; 
+public record GetDriverCommand(Guid Id) : IRequest<Result<DriverProfileResponse, Error>>; 

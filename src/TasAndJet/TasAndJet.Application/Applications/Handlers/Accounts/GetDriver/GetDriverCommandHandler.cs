@@ -7,16 +7,18 @@ using TasAndJet.Contracts.Dto;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Infrastructure;
+using TasAndJet.Infrastructure.Providers;
+using TasAndJet.Infrastructure.Providers.Abstract;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.GetDriver;
 
-public class GetDriverCommandHandler(ApplicationDbContext context) : IRequestHandler<GetDriverCommand, Result<ProfileResponse, Error>>
+public class GetDriverCommandHandler(ApplicationDbContext context, IFileProvider fileProvider) : IRequestHandler<GetDriverCommand, Result<DriverProfileResponse, Error>>
 {
-    public async Task<Result<ProfileResponse, Error>> Handle(GetDriverCommand request, CancellationToken cancellationToken)
+    public async Task<Result<DriverProfileResponse, Error>> Handle(GetDriverCommand request, CancellationToken cancellationToken)
     {
         var user = await context.Users
             .Where(x => x.Id == request.Id)
-            .Select(x => new ProfileResponse
+            .Select(x => new DriverProfileResponse
             {
                 Id = x.Id,
                 FirstName = x.FirstName,
@@ -42,7 +44,18 @@ public class GetDriverCommandHandler(ApplicationDbContext context) : IRequestHan
                 {
                     Comment = r.Comment,
                     Rating = r.Rating
-                }).ToList()
+                }).ToList(),
+                Vehicles = x.Vehicles.Select(v => new VehicleResponse
+                {
+                    Id = v.Id,
+                    UserId = v.UserId,
+                    Capacity = v.Capacity,
+                    Mark = v.Mark,
+                    Number = v.Number,
+                    Colour = v.Colour,
+                    PhotoUrl = fileProvider.GeneratePreSignedUrl(v.PhotoUrl),
+                    VehicleType = v.VehicleType
+                })
             })
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -55,6 +68,6 @@ public class GetDriverCommandHandler(ApplicationDbContext context) : IRequestHan
         {
             return Errors.User.AccessDenied();
         }
-        return Result.Success<ProfileResponse, Error>(user);
+        return Result.Success<DriverProfileResponse, Error>(user);
     }
 }

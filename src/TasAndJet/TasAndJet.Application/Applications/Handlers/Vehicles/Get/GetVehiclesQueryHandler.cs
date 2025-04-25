@@ -15,6 +15,8 @@ public class GetVehiclesQueryHandler(ApplicationDbContext context) : IRequestHan
             UserId = v.UserId,
             Capacity = v.Capacity,
             Mark = v.Mark,
+            Number = v.Number,
+            Colour = v.Colour,
             PhotoUrl = v.PhotoUrl,
             VehicleType = v.VehicleType
         });
