@@ -50,6 +50,11 @@ public class GetOrdersQueryHandler(ApplicationDbContext context, IFileProvider f
             orderQuery = orderQuery.Where(o => o.Region == request.Region);
         }
 
+        if (request.City.HasValue)
+        {
+            orderQuery = orderQuery.Where(o => o.City == request.City.Value);
+        }
+        
         var orderPagedList = await orderQuery
             .OrderByDescending(o => o.OrderDate) // Сортировка по дате создания
             .ToPagedListAsync(request.Page, request.PageSize, cancellationToken);
@@ -78,23 +83,23 @@ public class GetOrdersQueryHandler(ApplicationDbContext context, IFileProvider f
                     OrderType = order.OrderType
                 };
 
-                if (order.OrderType == OrderType.Rental)
+                switch (order.OrderType)
                 {
-                    response.RentalStartDate = order.RentalStartDate;
-                    response.RentalEndDate = order.RentalEndDate;
-                    response.ImageUrls = order.ImageKeys
-                        .Select(fileProvider.GeneratePreSignedUrl)
-                        .ToList();
-                }
-                // Только для грузоперевозки
-                else if (order.OrderType == OrderType.Freight)
-                {
-                    response.CargoWeight = order.CargoWeight;
-                    response.CargoType = order.CargoType;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException();
+                    case OrderType.Rental:
+                        response.RentalStartDate = order.RentalStartDate;
+                        response.RentalEndDate = order.RentalEndDate;
+                        response.ImageUrls = (order.ImageKeys ?? [])
+                            .Select(fileProvider.GeneratePreSignedUrl)
+                            .ToList();
+                        break;
+                    // Только для грузоперевозки
+                    case OrderType.Freight:
+                        response.CargoWeight = order.CargoWeight;
+                        response.CargoType = order.CargoType;
+                        break;
+                  
+                    default:
+                        throw new Exception("Неизвестный тип заказа");
                 }
 
                 return response;

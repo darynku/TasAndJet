@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using SharedKernel.Common.Api;
+using SharedKernel.Common.Exceptions;
 using TasAndJet.Domain.Entities.Enums;
 using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Domain.Entities.Reviews;
@@ -68,7 +69,13 @@ public class User
     public IReadOnlyCollection<Review> Reviews => _reviews.AsReadOnly();
     public IReadOnlyCollection<Vehicle> Vehicles => _vehicles.AsReadOnly();
     
-    
+    public bool HasActiveSubscription(UserSubscription subscription)
+    {
+        if (subscription == null)
+            throw new NotFoundException("Нету подписки");
+        
+        return subscription.IsPremium();
+    }
     // 🔹 Фабричный метод для регистрации через email + пароль
     public static User CreateUser(
         Guid id,
@@ -163,8 +170,8 @@ public class User
         if (string.IsNullOrEmpty(StripeCustomerId))
             StripeCustomerId = customerId;
     }
-    
-    public bool HasActiveSubscription() => UserSubscription.EndDate != null;
+
+
     
     public void SetAvatarUrl(string url)
     {

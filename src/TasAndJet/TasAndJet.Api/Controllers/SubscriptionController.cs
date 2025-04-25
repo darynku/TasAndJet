@@ -204,7 +204,7 @@ public class SubscriptionController : ApplicationController
         if (user == null) 
             return NotFound("Пользователь не найден");
 
-        var isActive = user.HasActiveSubscription();
+        var isActive = user.HasActiveSubscription(user.UserSubscription);
         return Ok(isActive);
     }
 

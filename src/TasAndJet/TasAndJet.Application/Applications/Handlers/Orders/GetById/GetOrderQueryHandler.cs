@@ -23,7 +23,7 @@ public class GetOrderQueryHandler(ApplicationDbContext context, IFileProvider fi
         if (order == null)
             return Errors.General.NotFound(request.OrderId, "Заказ не найден");
 
-        var orderDetails = new OrderDetailsResponse
+        var response = new OrderDetailsResponse
         {
             OrderId = order.Id,
             ClientId = order.ClientId,
@@ -36,42 +36,29 @@ public class GetOrderQueryHandler(ApplicationDbContext context, IFileProvider fi
             Region = order.Region,
             TotalPrice = order.TotalPrice,
             City = order.City,
-            OrderDetails = order.OrderType switch
-            {
-                OrderType.Rental => new RentalOrderResponse
-                {
-                    RentalStartDate = order.RentalStartDate,
-                    RentalEndDate = order.RentalEndDate,
-                    ImageUrls = order.ImageKeys.Select(fileProvider.GeneratePreSignedUrl).ToList()
-                },
-                OrderType.Freight => new FreightOrderResponse
-                {
-                    CargoWeight = order.CargoWeight,
-                    CargoType = order.CargoType
-                },
-                _ => throw new InvalidOperationException($"Неизвестный тип заказа: {order.OrderType}")
-            }
+            OrderType = order.OrderType
         };
-        return Result.Success<OrderDetailsResponse, Error>(orderDetails);
+
+        // Дополняем деталями в зависимости от типа заказа
+        switch (order.OrderType)
+        {
+            case OrderType.Rental:
+                response.RentalStartDate = order.RentalStartDate;
+                response.RentalEndDate = order.RentalEndDate;
+                response.ImageUrls = order.ImageKeys.Select(fileProvider.GeneratePreSignedUrl).ToList();
+                break;
+
+            case OrderType.Freight:
+                response.CargoWeight = order.CargoWeight;
+                response.CargoType = order.CargoType;
+                break;
+
+            default:
+                throw new InvalidOperationException($"Неизвестный тип заказа: {order.OrderType}");
+        }
+
+        return Result.Success<OrderDetailsResponse, Error>(response);
     }
-}
-
-public class RentalOrderResponse : IOrderDetails
-{
-    public DateTime? RentalStartDate { get; set; }
-    public DateTime? RentalEndDate { get; set; }
-    public List<string>? ImageUrls { get; set; }
-}
-
-
-public class FreightOrderResponse : IOrderDetails
-{
-    public decimal? CargoWeight { get; set; }
-    public string? CargoType { get; set; }
-}
-
-public interface IOrderDetails
-{
 }
 
 public class OrderDetailsResponse
@@ -89,6 +76,12 @@ public class OrderDetailsResponse
     public decimal TotalPrice { get; set; }
     public KazakhstanCity City { get; set; }
 
-    // Поле для хранения специфичных данных
-    public IOrderDetails OrderDetails { get; set; }
+    // Rental
+    public DateTime? RentalStartDate { get; set; }
+    public DateTime? RentalEndDate { get; set; }
+    public List<string>? ImageUrls { get; set; }
+
+    // Freight
+    public decimal? CargoWeight { get; set; }
+    public string? CargoType { get; set; }
 }

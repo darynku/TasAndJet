@@ -22,8 +22,11 @@ public class UserSubscription
     {
         EndDate ??= endDate;
     }
-    
-    public bool IsPremium() => EndDate >= DateTime.UtcNow;
+
+    public bool IsPremium()
+    {
+        return EndDate.HasValue && EndDate.Value >= DateTime.UtcNow;
+    }
     
     public static UserSubscription Create(Guid id, Guid userId, string stripeSubscriptionId, DateTime startDate, DateTime? endDate)
     {
