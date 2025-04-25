@@ -149,7 +149,8 @@ public class SubscriptionController : ApplicationController
                         subscriptionEnd
                     );
 
-                    _dbContext.UserSubscriptions.Add(newSubscription);
+                    var sub = await _dbContext.UserSubscriptions.AddAsync(newSubscription, cancellationToken);
+                    user.AddSubscription(sub.Entity);
                     await _dbContext.SaveChangesAsync(cancellationToken);
 
                     _logger.LogInformation("Создана новая подписка для пользователя {UserId}", user.Id);
@@ -204,7 +205,7 @@ public class SubscriptionController : ApplicationController
         if (user == null) 
             return NotFound("Пользователь не найден");
 
-        var isActive = user.HasActiveSubscription(user.UserSubscription);
+        var isActive = Domain.Entities.Account.User.HasActiveSubscription(user.UserSubscription);
         return Ok(isActive);
     }
 

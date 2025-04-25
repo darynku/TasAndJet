@@ -69,12 +69,9 @@ public class User
     public IReadOnlyCollection<Review> Reviews => _reviews.AsReadOnly();
     public IReadOnlyCollection<Vehicle> Vehicles => _vehicles.AsReadOnly();
     
-    public bool HasActiveSubscription(UserSubscription subscription)
+    public static bool HasActiveSubscription(UserSubscription? subscription)
     {
-        if (subscription == null)
-            throw new NotFoundException("Нету подписки");
-        
-        return subscription.IsPremium();
+        return subscription != null && subscription.IsPremium();
     }
     // 🔹 Фабричный метод для регистрации через email + пароль
     public static User CreateUser(
@@ -140,6 +137,11 @@ public class User
             throw new InvalidOperationException("Google аккаунт уже привязан");
 
         GoogleId = googleId;
+    }
+
+    public void AddSubscription(UserSubscription subscription)
+    {
+        UserSubscription = subscription;
     }
 
     public void AddReview(Review review)
