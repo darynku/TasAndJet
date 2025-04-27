@@ -45,6 +45,6 @@ public class AddVehicleToDriverCommandHandler(ApplicationDbContext context, IUpl
         await context.SaveChangesAsync(cancellationToken);
 
         if (request.PhotoUrl is not null)
-            await uploadFileService.HandleVehiclePhoto(user.Id, request.PhotoUrl, cancellationToken);
+            await uploadFileService.HandleVehiclePhoto(vehicle.Id, request.PhotoUrl, cancellationToken);
     }
 }

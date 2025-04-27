@@ -19,7 +19,6 @@ using GoogleOptions = TasAndJet.Infrastructure.Options.GoogleOptions;
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Google;
 
 public class GoogleAuthCommandHandler(
-    IUploadFileService uploadFileService,
     IJwtProvider jwtProvider,
     ApplicationDbContext context,
     IPublishEndpoint publishEndpoint,
@@ -66,7 +65,7 @@ public class GoogleAuthCommandHandler(
         }
         else if (string.IsNullOrEmpty(user.GoogleId))
         {
-            // 🔹 Привязываем Google ID, если его не было
+            //Привязываем Google ID, если его не было
             user.LinkGoogleAccount(payload.Subject);
         }
 
@@ -76,7 +75,7 @@ public class GoogleAuthCommandHandler(
         {
             await publishEndpoint.Publish(new UserRegisteredEvent(user.Id, user.PhoneNumber), cancellationToken);
         }
-        // 🔹 Генерируем JWT
+        
         var token = jwtProvider.GenerateAccessToken(user);
         var refreshToken = await jwtProvider.GenerateRefreshToken(user, cancellationToken);
         var response = new TokenResponse(user.Id, token, refreshToken, role);

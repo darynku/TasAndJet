@@ -137,7 +137,7 @@ public class AccountsController(
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }
-
+    
     [HttpGet("signin-google")]
     public IActionResult Callback()
     {
