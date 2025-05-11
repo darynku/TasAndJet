@@ -71,6 +71,7 @@ public class GetOrdersQueryHandler(ApplicationDbContext context, IFileProvider f
                 {
                     OrderId = order.Id,
                     ClientId = order.ClientId,
+                    DriverId = order.DriverId,
                     Description = order.Description,
                     PickupAddress = order.PickupAddress,
                     DestinationAddress = order.DestinationAddress,

@@ -8,6 +8,7 @@ public class OrderResponse
 {
     public Guid OrderId { get; set; }
     public Guid ClientId { get; set; }
+    public Guid? DriverId { get; set; }
     public string Description { get; set; }
     public string? PickupAddress { get; set; }
     public string? DestinationAddress { get; set; }
