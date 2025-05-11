@@ -3,7 +3,7 @@
 public enum VehicleType
 {
     // Легковые автомобили
-    PassengerCar = 1, // Легковая машина
+    Towtruck = 1, // Экакуатор
 
     // Грузовой транспорт
     Truck = 2, // Грузовик
@@ -20,5 +20,4 @@ public enum VehicleType
     RoadRoller = 16, // Каток
     Grader = 17, // Грейдер
     Tractor = 18, // Трактор
-    Harvester = 19, // Комбайн
 }
