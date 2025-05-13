@@ -14,7 +14,7 @@ namespace TasAndJet.Application.Applications.Handlers.Orders.Assign;
 
 public class AssignDriverCommandHandler(
     ApplicationDbContext context,
-    IHubContext<NotificationHub> hubContext,
+    IHubContext<NotificationHub, INotificationHub> hubContext,
     ILogger<AssignDriverCommandHandler> logger) : IRequestHandler<AssignDriverCommand>
 {
     public async Task Handle(AssignDriverCommand request, CancellationToken cancellationToken)
@@ -35,11 +35,11 @@ public class AssignDriverCommandHandler(
         
         await context.SaveChangesAsync(cancellationToken);
         
-        await SendNotifications(order, driver);
+        await SendNotifications(order, driver, cancellationToken);
     }
-    private async Task SendNotifications(Order order, User driver)
+    private async Task SendNotifications(Order order, User driver, CancellationToken cancellationToken)
     {
-        var clientNotification = Notification.CreateInstance(
+        var clientNotification = Notification.Create(
             Guid.NewGuid(),
             order.ClientId, 
             "Водитель назначен!",
@@ -48,11 +48,11 @@ public class AssignDriverCommandHandler(
             Notification.Assigned,
             JsonSerializer.Serialize(new { orderId = order.Id }));
         
-        context.Notifications.Add(clientNotification);
+        await context.Notifications.AddAsync(clientNotification, cancellationToken);
 
-        await context.SaveChangesAsync(); 
+        await context.SaveChangesAsync(cancellationToken); 
         
-        var driverNotification = Notification.CreateInstance(
+        var driverNotification = Notification.Create(
             Guid.NewGuid(),
             driver.Id, 
             "Новый заказ!",
@@ -61,17 +61,17 @@ public class AssignDriverCommandHandler(
             Notification.NewOrder,
             JsonSerializer.Serialize(new { orderId = order.Id }));
         
-        context.Notifications.Add(driverNotification);
+        await context.Notifications.AddAsync(driverNotification, cancellationToken);
         
          logger.LogInformation("Созданы уведомления для клиента - {ClientId}, и водителя - {DriverId}", order.ClientId, driver.Id);
          
-        await context.SaveChangesAsync(); 
+        await context.SaveChangesAsync(cancellationToken); 
 
         await hubContext.Clients.Group(order.ClientId.ToString())
-            .SendAsync("ReceiveNotification", clientNotification);
+            .ReceiveNotification(clientNotification);
 
         await hubContext.Clients.Group(driver.Id.ToString())
-            .SendAsync("ReceiveNotification", driverNotification);
+            .ReceiveNotification(driverNotification);
     }
 
 }

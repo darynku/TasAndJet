@@ -16,7 +16,7 @@ public class SendSmsCodeCommandHandler(
     {
         var code = GenerateCode();
 
-        string message = $"Ваш код для двухфакторной аутентификации: {code}";                                                                                                                                                               
+        var message = $"Ваш код для двухфакторной аутентификации: {code}";                                                                                                                                                               
         
         try
         {

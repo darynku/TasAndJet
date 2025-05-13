@@ -11,9 +11,9 @@ public class LoginUserCommand : IRequest<Result<TokenResponse, Error>>
 {
     public LoginUserCommand(LoginData data)
     {
-        Email = data.Email;
+        Phone = data.Phone;
         Password = data.Password;
     }
-    public string Email { get; }
+    public string Phone { get; }
     public string Password { get; }
 }

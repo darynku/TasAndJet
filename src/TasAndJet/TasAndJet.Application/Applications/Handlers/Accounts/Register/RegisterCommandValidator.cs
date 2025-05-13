@@ -23,9 +23,9 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             .MinimumLength(6).WithMessage("Пароль должен содержать минимум 6 символов.");
 
         RuleFor(x => x.PhoneNumber)
-            .NotEmpty().WithMessage("Номер телефона обязателен для заполнения.")
-            .Matches(ValidationConstants.ValidPhoneNumberPattern)
-            .WithMessage("Некорректный номер телефона Казахстана.");;
+            .NotEmpty().WithMessage("Номер телефона обязателен для заполнения.");
+            // .Matches(ValidationConstants.ValidPhoneNumberPattern)
+            // .WithMessage("Некорректный номер телефона Казахстана.");
 
         RuleFor(x => x.Region)
             .NotEmpty().WithMessage("Регион обязателен для заполнения.");

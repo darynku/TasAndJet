@@ -68,6 +68,10 @@ public class SubscriptionController : ApplicationController
                         Quantity = 1,
                     }
                 ],
+                SubscriptionData = new SessionSubscriptionDataOptions
+                {
+                    TrialPeriodDays = 14
+                },
                 SuccessUrl = _stripeOptions.SuccessUrl,
                 CancelUrl = _stripeOptions.CancelUrl,
             };
@@ -77,7 +81,7 @@ public class SubscriptionController : ApplicationController
             
             await transaction.CommitAsync(cancellationToken);
             
-            _logger.LogInformation("Transaction commited");
+            _logger.LogInformation("Transaction commited for user {UserId}, {StripeId}", user.Id, user.StripeCustomerId);
             
             return Ok(new CheckoutSessionResponse(session.Id, session.Url));
         }
@@ -194,7 +198,6 @@ public class SubscriptionController : ApplicationController
         return Ok();
     }
 
-
     [HttpGet("check/{userId}")]
     public async Task<IActionResult> CheckSubscription([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
@@ -202,11 +205,33 @@ public class SubscriptionController : ApplicationController
             .Include(u => u.UserSubscription)
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
-        if (user == null) 
-            return NotFound("Пользователь не найден");
+        if (user == null || string.IsNullOrWhiteSpace(user.UserSubscription.StripeSubscriptionId))
+            return Ok(false);
 
-        var isActive = Domain.Entities.Account.User.HasActiveSubscription(user.UserSubscription);
-        return Ok(isActive);
+        try
+        {
+            var service = new SubscriptionService();
+            var subscription = await service.GetAsync(user.UserSubscription.StripeSubscriptionId, cancellationToken: cancellationToken);
+
+            var now = DateTimeOffset.UtcNow;
+
+            var isTrial = subscription.TrialStart.HasValue &&
+                          subscription.TrialEnd.HasValue &&
+                          now >= subscription.TrialStart &&
+                          now < subscription.TrialEnd;
+
+            var isActive = subscription.Status == "active" && 
+                           (subscription.CancelAt == null || subscription.CancelAt > now);
+
+            var hasAccess = isActive || isTrial;
+
+            return Ok(hasAccess);
+        }
+        catch (StripeException ex)
+        {
+            _logger.LogError(ex, "Stripe error while checking subscription for user {UserId}", userId);
+            return Ok(false);
+        }
     }
 
     [HttpPost("cancel/{userId}")]

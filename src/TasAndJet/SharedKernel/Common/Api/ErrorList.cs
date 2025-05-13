@@ -2,14 +2,9 @@
 
 namespace SharedKernel.Common.Api;
 
-public class ErrorList : IEnumerable<Error>
+public class ErrorList(IEnumerable<Error> errors) : IEnumerable<Error>
 {
-    private readonly List<Error> _errors;
-
-    public ErrorList(IEnumerable<Error> errors)
-    {
-        _errors = [..errors];
-    }
+    private readonly List<Error> _errors = [..errors];
 
     public IEnumerator<Error> GetEnumerator()
     {

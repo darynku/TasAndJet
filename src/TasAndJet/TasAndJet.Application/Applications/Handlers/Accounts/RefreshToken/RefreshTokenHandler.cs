@@ -20,7 +20,7 @@ public class RefreshTokenHandler
             .FirstOrDefaultAsync(x => x.RefreshToken == request.RefreshToken, cancellationToken);
         
         if(oldRefreshSession is null)
-            return Error.NotFound("refresh.token.not.found",$"Не найден токен: {request.RefreshToken}").ToErrorList();
+            return Error.NotFound("refresh.token.not.found", $"Не найден токен: {request.RefreshToken}").ToErrorList();
         
         if(oldRefreshSession.ExpiresIn < DateTime.UtcNow)
             return Errors.Tokens.ExpiredToken().ToErrorList();

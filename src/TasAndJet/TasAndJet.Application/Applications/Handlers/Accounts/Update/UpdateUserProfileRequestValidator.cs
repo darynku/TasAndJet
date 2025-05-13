@@ -15,7 +15,7 @@ public class UpdateUserProfileRequestValidator : AbstractValidator<UpdateUserPro
             .MaximumLength(100).WithMessage("Фамилия не должна превышать 100 символов");
 
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email обязателен для заполнения")
+            .NotEmpty().WithMessage("Phone обязателен для заполнения")
             .EmailAddress().WithMessage("Некорректный формат email");
 
         RuleFor(x => x.PhoneNumber)

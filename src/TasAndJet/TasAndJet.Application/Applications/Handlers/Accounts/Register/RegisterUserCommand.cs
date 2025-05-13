@@ -15,7 +15,6 @@ public class RegisterUserCommand : IRequest<UnitResult<ErrorList>>
         FirstName = data.FirstName;
         LastName = data.LastName;
         Email = data.Email;
-        Avatar = data.Avatar;
         Password = data.Password;
         PhoneNumber = data.PhoneNumber;
         Region = data.Region;
@@ -26,7 +25,6 @@ public class RegisterUserCommand : IRequest<UnitResult<ErrorList>>
     public string FirstName { get; }
     public string LastName { get;  }
     public string Email { get; }
-    public IFormFile? Avatar { get; }
     public string Password { get;  }
     public string PhoneNumber { get; }
     public string Region { get; }

@@ -31,11 +31,10 @@ public class AccountsController(
     {
         var command = new RegisterUserCommand(data);
         var result = await mediator.Send(command, cancellationToken);
+        
         if (result.IsFailure)
-        {
             return result.Error.ToResponse();
-        }
-
+        
         return Ok(result.IsSuccess);
     }
 
@@ -80,10 +79,9 @@ public class AccountsController(
     {
         var command = new VerifyCodeCommand(data);
         var result = await mediator.Send(command, cancellationToken);
+        
         if (result.IsFailure)
-        {
             return result.Error.ToResponse();
-        }
 
         return Ok(result.IsSuccess);
     }
@@ -156,16 +154,13 @@ public class AccountsController(
     public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
     {
         var result = await googleAuthService.AuthenticateWithGoogle(request.GoogleToken);
+        
         if (result.IsSuccess)
-        {
             return Ok(result.Value); 
-        }
 
         if (result.IsFailure)
-        {
             return Unauthorized(result.Error.ToResponse());
-        }
-
+        
         return BadRequest();
     }
 

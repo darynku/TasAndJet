@@ -2,8 +2,10 @@
 {
     public class SmsOptions
     {
-        public string BaseUrl { get; init; } = string.Empty;
-        public string SenderPhone { get; init; } = string.Empty;
-        public string ApiKey { get; init; } = string.Empty;
+        public string Login { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string BaseUrl { get; set; } = string.Empty;
+        public string Sender { get; set; } = string.Empty;
     }
+
 }

@@ -32,7 +32,7 @@ public class Notification
     public string Type { get; set; }      // "driver_assigned", "order_completed" и т.д.
     public string? Data { get; set; }     // Доп. данные (JSON)
     
-    public static Notification CreateInstance(Guid id, Guid userId, string title, string message, DateTime createdAt, string type, string data)
+    public static Notification Create(Guid id, Guid userId, string title, string message, DateTime createdAt, string type, string data)
     {
         return new Notification(id, userId, title, message, createdAt, type, data);
     }

@@ -56,6 +56,10 @@ public static class Errors
         public static Error AccessDenied()
         {
             return Error.Validation("user.access.denied", "Неверная роль, доступ отклонен");
+        }        
+        public static Error UserAlreadyExist()
+        {
+            return Error.Validation("user.already.exists", "Пользователь уже существует в системе.");
         }
         public static Error InvalidCredentials()
         {

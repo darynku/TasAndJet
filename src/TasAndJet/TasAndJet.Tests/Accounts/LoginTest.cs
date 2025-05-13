@@ -29,11 +29,11 @@ public class LoginUserCommandHandlerTests : TestsBase
         var email = "test@example.com";
         var password = "Password123!";
         await SeedUser(email, password, 2); // Роль User
-        _logger.LogDebug("Пользователь {Email} создан с ролью {RoleId}", email, 2);
+        _logger.LogDebug("Пользователь {Phone} создан с ролью {RoleId}", email, 2);
 
         var command = new LoginUserCommand(new LoginData
         {
-            Email = email,
+            Phone = email,
             Password = password
         });
 
@@ -61,17 +61,17 @@ public class LoginUserCommandHandlerTests : TestsBase
         // Arrange
         var email = "test@example.com";
         await SeedUser(email, "Password123!", 2); // Роль User
-        _logger.LogDebug("Пользователь {Email} создан с паролем {Password}", email, "Password123!");
+        _logger.LogDebug("Пользователь {Phone} создан с паролем {Password}", email, "Password123!");
 
         var command = new LoginUserCommand(new LoginData
         {
-            Email = email,
+            Phone = email,
             Password = "WrongPassword" // Неверный пароль
         });
 
         // Act
         var result = await Mediator.Send(command);
-        _logger.LogWarning("Ошибка аутентификации для пользователя {Email}: {@Error}", email, result.Error);
+        _logger.LogWarning("Ошибка аутентификации для пользователя {Phone}: {@Error}", email, result.Error);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -89,7 +89,7 @@ public class LoginUserCommandHandlerTests : TestsBase
         // Arrange
         var command = new LoginUserCommand(new LoginData
         {
-            Email = "nonexistent@example.com",
+            Phone = "nonexistent@example.com",
             Password = "Password123!"
         });
 

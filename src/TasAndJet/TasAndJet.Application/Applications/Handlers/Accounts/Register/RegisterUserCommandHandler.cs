@@ -16,8 +16,7 @@ using TasAndJet.Infrastructure.Providers.Abstract;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Register;
 
-public class RegisterUserCommandHandler(
-    IUploadFileService uploadFileService,
+public sealed class RegisterUserCommandHandler(
     IValidator<RegisterUserCommand> validator,
     ApplicationDbContext context,
     ILogger<RegisterUserCommandHandler> logger,
@@ -26,13 +25,17 @@ public class RegisterUserCommandHandler(
 
     public async Task<UnitResult<ErrorList>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        //todo
-        // await validator.ValidateAndThrowAsync(request, cancellationToken);
+        await validator.ValidateAndThrowAsync(request, cancellationToken);
         
         var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
         try
         {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email || u.PhoneNumber == request.PhoneNumber, cancellationToken);
+            
+            if (user is not null)
+                return Errors.User.UserAlreadyExist().ToErrorList();
+            
             var role = await context.Roles.FirstOrDefaultAsync(role => role.Id == request.RoleId, cancellationToken);
 
             if (role is null)
@@ -42,35 +45,31 @@ public class RegisterUserCommandHandler(
 
             var avatarUrl = string.Empty;
             
-            var user = User.CreateUser(  
-                Guid.NewGuid(),
-                request.FirstName,
-                request.LastName,
-                request.Email,
-                avatarUrl,
-                passwordHash,
-                request.PhoneNumber,
-                request.Region,
-                request.Address,
-                role);
+            var result = User.CreateUser(  
+                id: Guid.NewGuid(),
+                firstName: request.FirstName,
+                lastName: request.LastName,
+                email: request.Email,
+                avatarUrl: avatarUrl,
+                passwordHash: passwordHash,
+                phoneNumber: request.PhoneNumber,
+                region: request.Region,
+                address: request.Address,
+                role: role);
             
-            await context.Users.AddAsync(user, cancellationToken);
+            await context.Users.AddAsync(result, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
-            
-            if (request.Avatar is not null)
-                await uploadFileService.HandleUserAvatar(user.Id, request.Avatar, cancellationToken);
-            
             
             await transaction.CommitAsync(cancellationToken);
             
-            await publishEndpoint.Publish(new UserRegisteredEvent(user.Id, user.PhoneNumber), cancellationToken);
+            await publishEndpoint.Publish(new UserRegisteredEvent(result.Id, result.PhoneNumber), cancellationToken);
             
             return Result.Success<ErrorList>();
             
         }
         catch (Exception ex)
         {
-            logger.LogError("Ошибка при регистрации пользователя: {Email}, {Phone} Ошибка: {Message}",
+            logger.LogError("Ошибка при регистрации пользователя: {Phone}, {Phone} Ошибка: {Message}",
                 request.Email, request.PhoneNumber, ex.Message);
             
             await transaction.RollbackAsync(cancellationToken);
