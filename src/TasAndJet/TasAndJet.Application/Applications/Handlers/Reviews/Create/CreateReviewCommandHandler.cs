@@ -38,7 +38,7 @@ public class CreateReviewCommandHandler(
             return Errors.Reviews.InvalidOperation().ToErrorList();
 
         // Создание отзыва
-        var review = Review.Create(request.Id, request.ClientId, request.DriverId, request.OrderId, request.Comment, request.Rating);
+        var review = Review.Create(Guid.NewGuid(), order.ClientId, order.DriverId, order.Id, request.Comment, request.Rating);
 
         await context.Reviews.AddAsync(review, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);

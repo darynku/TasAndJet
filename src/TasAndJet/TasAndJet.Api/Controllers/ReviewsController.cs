@@ -11,10 +11,10 @@ namespace TasAndJet.Api.Controllers;
 [SwaggerTag("Контроллер для работы с отзывами под заказом")]
 public class ReviewsController(IMediator mediatr) : ApplicationController
 {
-    [HttpPost("create")]
-    public async Task<IActionResult> CreateReview([FromBody] ReviewData data, CancellationToken cancellationToken)
+    [HttpPost("create/{orderId:guid}")]
+    public async Task<IActionResult> CreateReview([FromRoute] Guid orderId, [FromBody] ReviewData data, CancellationToken cancellationToken)
     {
-        var request = new CreateReviewCommand(data);
+        var request = new CreateReviewCommand(orderId, data);
         var result = await mediatr.Send(request, cancellationToken);
         if (result.IsFailure)
         {

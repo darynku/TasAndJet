@@ -8,18 +8,12 @@ namespace TasAndJet.Application.Applications.Handlers.Reviews.Create;
 
 public class CreateReviewCommand : IRequest<UnitResult<ErrorList>>
 {
-    public CreateReviewCommand(ReviewData data)
+    public CreateReviewCommand(Guid orderId, ReviewData data)
     {
-        Id = data.Id;
-        ClientId = data.ClientId;
-        DriverId = data.DriverId;
-        OrderId = data.OrderId;
+        OrderId = orderId;
         Comment = data.Comment;
         Rating = data.Rating;
     }
-    public Guid Id { get; }
-    public Guid ClientId { get;}
-    public Guid DriverId { get; }
     public Guid OrderId { get; }
     public string Comment { get; }
     public int Rating { get; }

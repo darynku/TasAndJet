@@ -6,15 +6,6 @@ namespace TasAndJet.Application.Applications.Handlers.Reviews.Create
     {
         public CreateReviewCommandValidator()
         {
-            RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("Идентификатор отзыва обязателен.");
-
-            RuleFor(x => x.ClientId)
-                .NotEmpty().WithMessage("Идентификатор клиента обязателен.");
-
-            RuleFor(x => x.DriverId)
-                .NotEmpty().WithMessage("Идентификатор водителя обязателен.");
-
             RuleFor(x => x.OrderId)
                 .NotEmpty().WithMessage("Идентификатор заказа обязателен.");
 
