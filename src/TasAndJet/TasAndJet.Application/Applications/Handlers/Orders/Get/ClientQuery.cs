@@ -6,4 +6,4 @@ using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Application.Applications.Handlers.Orders.Get;
 
-public record ClientQuery(Guid clientId) : IRequest<PagedList<OrderResponse>>;
+public record ClientQuery(Guid ClientId) : IRequest<PagedList<OrderResponse>>;

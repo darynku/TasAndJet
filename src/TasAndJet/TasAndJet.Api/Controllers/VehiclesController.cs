@@ -25,6 +25,7 @@ public class VehiclesController(IMediator mediator) : ApplicationController
         return Ok(preSignedUrl);
     }
     [HttpGet]
+    [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Any, VaryByHeader = "User-Agent")]
     public async Task<IActionResult> GetVehicles([FromQuery] GetVehiclesQuery query,
         CancellationToken cancellationToken)
     {

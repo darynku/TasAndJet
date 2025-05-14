@@ -26,6 +26,12 @@ builder.Services.AddProgramDependencies(builder.Configuration);
 
 builder.Services.AddProblemDetails();
 
+builder.Services.AddStackExchangeRedisCache(action =>
+{
+    action.Configuration = builder.Configuration.GetConnectionString("Redis");
+});
+
+builder.Services.AddResponseCaching();
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("Database")!));
 
@@ -44,7 +50,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
     app.UseSwagger();
     app.UseSwaggerUI();
     await app.AddMigrationAsync();
-
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -58,7 +63,6 @@ app.MapHub<NotificationHub>("/notificationHub", options =>
 });
 
 app.UseHttpsRedirection();
-
 
 app.MapControllers();
 app.Run();

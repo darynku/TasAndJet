@@ -25,6 +25,7 @@ public record NotificationResponse(
 public class NotificationsController(ApplicationDbContext context) : ApplicationController
 {
     [HttpGet("{userId}/notifications")]
+    [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Any, VaryByHeader = "User-Agent")]
     public async Task<IActionResult> GetNotifications([FromRoute] Guid userId, [FromQuery] int page, [FromQuery] int pageSize, CancellationToken cancellationToken)
     {
         if (userId == Guid.Empty)

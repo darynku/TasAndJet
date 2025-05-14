@@ -31,6 +31,7 @@ public class OrdersController(IMediator mediator) : ApplicationController
     }
     
     [HttpGet]
+    [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Any, VaryByHeader = "User-Agent")]
     public async Task<IActionResult> GetOrders([FromQuery] GetOrdersQuery query, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(query, cancellationToken);
@@ -38,6 +39,7 @@ public class OrdersController(IMediator mediator) : ApplicationController
     }
 
     [HttpGet("client")]
+    [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Any, VaryByHeader = "User-Agent")]
     public async Task<IActionResult> Client([FromQuery] ClientQuery query, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(query, cancellationToken);
@@ -45,6 +47,7 @@ public class OrdersController(IMediator mediator) : ApplicationController
     }
 
     [HttpGet("{orderId:guid}")]
+    [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Any, VaryByHeader = "User-Agent")]
     public async Task<IActionResult> GetOrderById([FromRoute] Guid orderId, CancellationToken cancellationToken)
     {
         var query = new GetOrderQuery(orderId);

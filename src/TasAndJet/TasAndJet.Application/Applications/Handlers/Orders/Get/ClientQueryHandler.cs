@@ -7,20 +7,20 @@ using TasAndJet.Infrastructure.Providers.Abstract;
 
 namespace TasAndJet.Application.Applications.Handlers.Orders.Get;
 
-public class ClientQueryHandler(ApplicationDbContext context, IFileProvider fileProvider)
-: IRequestHandler<ClientQuery, PagedList<OrderResponse>>
+public class ClientQueryHandler(
+    ApplicationDbContext context, 
+    IFileProvider fileProvider) : IRequestHandler<ClientQuery, PagedList<OrderResponse>>
 {
     /// <summary>
     /// Получение заказов по ClientId
     /// </summary>
     public async Task<PagedList<OrderResponse>> Handle(ClientQuery request, CancellationToken cancellationToken)
     {
-        var query = context.Orders
-        .Where(o => o.ClientId == request.clientId);
+        var query = context.Orders.Where(o => o.ClientId == request.ClientId);
 
         var pagedOrders = await query
-        .OrderByDescending(o => o.OrderDate)
-        .ToPagedListAsync(page: 1, pageSize: 10, cancellationToken); // Можно заменить на параметры, если появятся
+            .OrderByDescending(o => o.OrderDate)
+            .ToPagedListAsync(page: 1, pageSize: 10, cancellationToken); // Можно заменить на параметры, если появятся
 
         return ConvertToResponse(pagedOrders);
     }
@@ -64,7 +64,6 @@ public class ClientQueryHandler(ApplicationDbContext context, IFileProvider file
                 default:
                     throw new Exception("Неизвестный тип заказа");
             }
-
             return response;
         }).ToList();
 

@@ -11,7 +11,6 @@
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://0.0.0.0:5002
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
 
   postgres:
     image: postgres:latest
@@ -46,15 +45,6 @@
       - minio_data:/data
     command: server --console-address ":9001" /data
     restart: always
-
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    container_name: jaeger
-    ports:
-      - "4317:4317"
-      - "4318:4318"
-      - "16686:16686"
-    restart: always
     
   rabbitmq:
     image: rabbitmq:management-alpine
@@ -67,28 +57,17 @@
       - "15672:15672"
     restart: always
     
-  seq:
-    image: datalust/seq
-    container_name: seq-logging
-    restart: always
-    environment:
-      ACCEPT_EULA: "Y"
+  redis:
+    image: redis:latest
+    container_name: redis
     ports:
-      - "5341:80"
+      - "6379:6379"
     volumes:
-      - seq_data:/data
-    #  redis:
-#    image: redis:latest
-#    container_name: redis
-#    ports:
-#      - "6379:6379"
-#    volumes:
-#      - redis_data:/data
-#    restart: always
+      - redis_data:/data
+    restart: always
     
 volumes:
   postgres_data:
   rabbitmq_data:
   minio_data:
-  seq_data:
-#  redis_data:
+  redis_data:

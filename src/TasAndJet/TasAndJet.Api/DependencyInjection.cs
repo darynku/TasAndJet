@@ -197,7 +197,8 @@ public static class DependencyInjection
                     options.SetDbStatementForText = true;
                     options.SetDbStatementForStoredProcedure = true;
                 })
-                .AddOtlpExporter(o => o.Endpoint = new Uri("http://jaeger:4317")));
+                .AddConsoleExporter()
+                /*.AddOtlpExporter(o => o.Endpoint = new Uri("http://jaeger:4317")*/);
         
         return services;
     }

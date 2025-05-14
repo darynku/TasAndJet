@@ -13,6 +13,7 @@ namespace TasAndJet.Api.Controllers;
 public class ProfilesController(IMediator mediatr) : ApplicationController
 {
     [HttpGet("driver/{id:guid}")]
+    [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Any, VaryByHeader = "User-Agent")]
     public async Task<ActionResult> GetDriver([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var request = new GetDriverCommand(id);
@@ -25,6 +26,7 @@ public class ProfilesController(IMediator mediatr) : ApplicationController
     }
     
     [HttpGet("client/{id:guid}")]
+    [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Any, VaryByHeader = "User-Agent")]
     public async Task<ActionResult> GetClient([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var request = new GetClientCommand(id);
