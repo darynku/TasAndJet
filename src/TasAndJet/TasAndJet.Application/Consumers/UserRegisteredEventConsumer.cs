@@ -1,6 +1,5 @@
 ﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using TasAndJet.Application.Clients;
 using TasAndJet.Application.Clients.Notification;
 using TasAndJet.Application.Events;
 using TasAndJet.Infrastructure;

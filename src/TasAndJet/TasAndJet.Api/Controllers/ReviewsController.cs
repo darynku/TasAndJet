@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Common;
 using SharedKernel.Common.Api;
 using Swashbuckle.AspNetCore.Annotations;
 using TasAndJet.Application.Applications.Handlers.Reviews.Create;

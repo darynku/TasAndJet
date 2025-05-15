@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.Extensions.Logging;
 using TasAndJet.Domain.Entities;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Domain.Entities.Orders;

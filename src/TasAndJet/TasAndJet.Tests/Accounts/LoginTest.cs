@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using SharedKernel.Common.Api;
+﻿using Microsoft.Extensions.DependencyInjection;
 using TasAndJet.Application.Applications.Handlers.Accounts.Login;
 using TasAndJet.Contracts.Data.Accounts;
-using TasAndJet.Domain.Entities.Account;
+
 namespace TasAndJet.Tests.Accounts;
 
 using System.Threading.Tasks;

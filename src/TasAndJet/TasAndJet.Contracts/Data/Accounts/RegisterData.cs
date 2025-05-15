@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using TasAndJet.Domain.Entities.Services;
-
-namespace TasAndJet.Contracts.Data.Accounts;
+﻿namespace TasAndJet.Contracts.Data.Accounts;
 
 public class RegisterData
 {

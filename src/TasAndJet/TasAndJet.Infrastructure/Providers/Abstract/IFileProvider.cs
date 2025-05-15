@@ -1,7 +1,4 @@
-﻿using CSharpFunctionalExtensions;
-using SharedKernel.Common.Api;
-
-namespace TasAndJet.Infrastructure.Providers.Abstract;
+﻿namespace TasAndJet.Infrastructure.Providers.Abstract;
 
 public interface IFileProvider
 {

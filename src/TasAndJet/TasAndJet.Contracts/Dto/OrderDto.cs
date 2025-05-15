@@ -1,5 +1,4 @@
 ﻿using TasAndJet.Domain.Entities.Orders;
-using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Contracts.Dto;
 

@@ -1,7 +1,5 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SharedKernel.Paged;
-using TasAndJet.Contracts.Dto;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Infrastructure;
 #pragma warning disable CS8601 // Possible null reference assignment.

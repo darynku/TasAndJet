@@ -45,7 +45,7 @@ public class AssignDriverCommandHandler(
             "Водитель назначен!",
             $"{driver.FirstName} принял ваш заказ", 
             DateTime.UtcNow,
-            Notification.Assigned,
+            Notification.DriverAssigned,
             JsonSerializer.Serialize(new { orderId = order.Id }));
         
         await context.Notifications.AddAsync(clientNotification, cancellationToken);
@@ -63,7 +63,7 @@ public class AssignDriverCommandHandler(
         
         await context.Notifications.AddAsync(driverNotification, cancellationToken);
         
-         logger.LogInformation("Созданы уведомления для клиента - {ClientId}, и водителя - {DriverId}", order.ClientId, driver.Id);
+         logger.LogInformation("Созданы уведомления для клиента - {ClientId}, и водителя - {ClientId}", order.ClientId, driver.Id);
          
         await context.SaveChangesAsync(cancellationToken); 
 

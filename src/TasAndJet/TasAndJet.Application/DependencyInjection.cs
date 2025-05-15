@@ -6,7 +6,6 @@ using TasAndJet.Application.Applications.Services.Accounts.Google;
 using TasAndJet.Application.Applications.Services.Accounts.UploadFile;
 using TasAndJet.Application.Consumers;
 using TasAndJet.Application.Hubs;
-using TasAndJet.Infrastructure.Options;
 
 namespace TasAndJet.Application;
 

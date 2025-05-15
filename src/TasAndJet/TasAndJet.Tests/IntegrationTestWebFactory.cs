@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Npgsql;
 using Respawn;
 using Serilog;
@@ -18,7 +17,6 @@ using TasAndJet.Infrastructure;
 using Testcontainers.Minio;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
-using ILogger = Serilog.ILogger;
 
 namespace TasAndJet.Tests;
 

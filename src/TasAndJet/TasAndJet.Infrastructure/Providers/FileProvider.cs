@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Amazon.S3;
+﻿using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Logging;
 using TasAndJet.Infrastructure.Providers.Abstract;
@@ -68,7 +67,7 @@ public class FileProvider(
 
         var config = new AmazonS3Config()
         {
-            ServiceURL = $"http://192.168.0.18:9000", 
+            ServiceURL = $"http://192.168.31.38:9000", 
             ForcePathStyle = true,
         };
 

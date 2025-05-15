@@ -6,13 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 using Microsoft.Extensions.Logging;
 using SharedKernel.Common.Api;
-using TasAndJet.Application.Applications.Services.Accounts.UploadFile;
 using TasAndJet.Application.Events;
 using TasAndJet.Domain.Entities.Account;
-using TasAndJet.Domain.Entities.Services;
 using TasAndJet.Infrastructure;
-using TasAndJet.Infrastructure.Providers;
-using TasAndJet.Infrastructure.Providers.Abstract;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Register;
 

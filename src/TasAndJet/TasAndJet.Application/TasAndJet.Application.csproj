@@ -22,4 +22,8 @@
       <ProjectReference Include="..\TasAndJet.Infrastructure\TasAndJet.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Applications\Handlers\Orders\Users\" />
+    </ItemGroup>
+
 </Project>

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Paged;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Domain.Entities.Orders;
@@ -19,6 +20,7 @@ public class GetOrdersQueryHandler(ApplicationDbContext context, IFileProvider f
     public async Task<PagedList<OrderResponse>> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
     {
         var orderQuery = context.Orders
+            .AsNoTracking()
             .Where(o => o.Status == OrderStatus.Created); // Фильтр по статусу "Создан"
 
         // Поиск по описанию
@@ -93,7 +95,6 @@ public class GetOrdersQueryHandler(ApplicationDbContext context, IFileProvider f
                             .Select(fileProvider.GeneratePreSignedUrl)
                             .ToList();
                         break;
-                    // Только для грузоперевозки
                     case OrderType.Freight:
                         response.CargoWeight = order.CargoWeight;
                         response.CargoType = order.CargoType;

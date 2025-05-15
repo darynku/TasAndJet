@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Common.Exceptions;
-using TasAndJet.Application.Applications.Handlers.Accounts.UploadFile;
 using TasAndJet.Infrastructure;
 using TasAndJet.Infrastructure.Providers;
 using TasAndJet.Infrastructure.Providers.Abstract;
@@ -10,26 +9,16 @@ namespace TasAndJet.Application.Applications.Services.Accounts.UploadFile;
 
 public class UploadFileService(ApplicationDbContext context, IFileProvider fileProvider) : IUploadFileService
 {
+    private const int MaxOrderCountPhotos = 6;
+    private const long MaxFileSize = 20 * 1024 * 1024;
+    private readonly string[] _allowedExtensions = [".jpg", ".jpeg", ".png", ".gif"];
     public async Task HandleUserAvatar(Guid userId, IFormFile fileRequest, CancellationToken cancellationToken)
     {
         var user = await context.Users
                        .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken)
                    ?? throw new NotFoundException("Пользователь не найден");
-
-        if (fileRequest == null || fileRequest.Length == 0)
-            throw new ArgumentException("Файл пуст");
         
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-        var fileExtension = Path.GetExtension(fileRequest.FileName).ToLowerInvariant();
-        
-        if (!allowedExtensions.Contains(fileExtension))
-            throw new ArgumentException("Файл должен быть изображением (например, JPEG, PNG, GIF и т.д.)");
-
-        // Валидация: максимальный размер файла (5 МБ)
-        const long maxFileSize = 5 * 1024 * 1024; 
-        
-        if (fileRequest.Length > maxFileSize)
-            throw new ArgumentException($"Размер файла не должен превышать {maxFileSize / (1024 * 1024)} МБ");
+        ValidateFileRequest(fileRequest);
         
         var fileKey = $"users/{user.Id}/{Guid.NewGuid()}{Path.GetExtension(fileRequest.FileName)}";
 
@@ -52,13 +41,13 @@ public class UploadFileService(ApplicationDbContext context, IFileProvider fileP
         var vehicle = await context.Vehicles
                           .FirstOrDefaultAsync(v => v.Id == vehicleId, cancellationToken)
                       ?? throw new NotFoundException("Транспорт не найден");
-
-        if (fileRequest.Length == 0)
-            throw new ArgumentException("Файл пуст");
-
+        
+        ValidateFileRequest(fileRequest);
+        
         var fileKey = $"vehicles/{vehicle.Id}/{Guid.NewGuid()}{Path.GetExtension(fileRequest.FileName)}";
 
         await using var stream = fileRequest.OpenReadStream();
+        
         var uploadRequest = new UploadFileRequest(
             Key: fileKey,
             FileName: fileRequest.FileName,
@@ -81,23 +70,13 @@ public class UploadFileService(ApplicationDbContext context, IFileProvider fileP
         if (files == null || !files.Any())
             throw new ArgumentException("Файлы не выбраны");
 
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-
+        if (files.Count >= MaxOrderCountPhotos)
+            throw new ArgumentException("Слишком много файлов, максимальное количество");
+        
         foreach (var fileRequest in files)
         {
-            if (fileRequest.Length == 0)
-                throw new ArgumentException("Один из файлов пуст");
-
-            var fileExtension = Path.GetExtension(fileRequest.FileName).ToLowerInvariant();
-        
-            if (!allowedExtensions.Contains(fileExtension))
-                throw new ArgumentException("Файл должен быть изображением (например, JPEG, PNG, GIF и т.д.)");
+            ValidateFileRequest(fileRequest);
             
-            const long maxFileSize = 20 * 1024 * 1024; 
-        
-            if (fileRequest.Length > maxFileSize)
-                throw new ArgumentException($"Размер файла не должен превышать {maxFileSize / (1024 * 1024)} МБ");
-
             var fileKey = $"orders/rental/{order.Id}/{Guid.NewGuid()}{Path.GetExtension(fileRequest.FileName)}";
 
             await using var stream = fileRequest.OpenReadStream();
@@ -113,5 +92,19 @@ public class UploadFileService(ApplicationDbContext context, IFileProvider fileP
             order.AddImageKey(fileKey);
         }
         await context.SaveChangesAsync(cancellationToken);
+    }
+
+    private void ValidateFileRequest(IFormFile fileRequest)
+    {
+        if (fileRequest == null || fileRequest.Length == 0)
+            throw new ArgumentException("Файл пуст");
+        
+        var fileExtension = Path.GetExtension(fileRequest.FileName).ToLowerInvariant();
+        
+        if (!_allowedExtensions.Contains(fileExtension))
+            throw new ArgumentException("Файл должен быть изображением (например, JPEG, PNG, GIF и т.д.)");
+        
+        if (fileRequest.Length > MaxFileSize)
+            throw new ArgumentException($"Размер файла не должен превышать {MaxFileSize / (1024 * 1024)} МБ");
     }
 }

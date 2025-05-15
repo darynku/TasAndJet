@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using TasAndJet.Application.Clients;
 using TasAndJet.Application.Clients.Notification;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.SendSmsCode;

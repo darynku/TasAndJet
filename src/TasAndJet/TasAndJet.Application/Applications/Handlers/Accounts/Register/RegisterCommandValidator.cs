@@ -1,6 +1,4 @@
 ﻿using FluentValidation;
-using SharedKernel.Common;
-using SharedKernel.Common.Api;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Register;
 

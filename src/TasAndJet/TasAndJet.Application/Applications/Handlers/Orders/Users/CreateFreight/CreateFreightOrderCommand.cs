@@ -1,6 +1,4 @@
 ﻿using MediatR;
-using TasAndJet.Application.Applications.Handlers.Orders.CreateRental;
-using TasAndJet.Application.Applications.Services.Accounts.UploadFile;
 using TasAndJet.Domain.Entities.Enums;
 using TasAndJet.Domain.Entities.Services;
 

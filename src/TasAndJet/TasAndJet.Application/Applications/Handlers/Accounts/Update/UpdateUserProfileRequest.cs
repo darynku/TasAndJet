@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using SharedKernel.Common.Exceptions;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Update;
 

@@ -5,7 +5,8 @@ namespace TasAndJet.Domain.Entities;
 // Notification.cs
 public class Notification
 {
-    public const string Assigned = "driver_assigned";
+    public const string DriverAssigned = "driver_assigned";
+    public const string ClientAssigned = "client_assigned";
     public const string NewOrder = "new_order";
     private Notification()
     {

@@ -1,7 +1,4 @@
-﻿using CSharpFunctionalExtensions;
-using SharedKernel.Common.Api;
-using SharedKernel.Common.Exceptions;
-using TasAndJet.Domain.Entities.Enums;
+﻿using TasAndJet.Domain.Entities.Enums;
 using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Domain.Entities.Reviews;
 using TasAndJet.Domain.Entities.Services;
@@ -42,14 +39,16 @@ public class User
  
 
     public Guid Id { get; private set; }
-    public string FirstName { get; private set; } 
-    public string LastName { get; private set; }
-    public string PhoneNumber { get; private set; }
-    public string Email { get; private set; }
+    public string FirstName { get; private set; } = null!;
+    public string LastName { get; private set; } = null!;
+    public string PhoneNumber { get; private set; } = null!;
+    public string Email { get; private set; } = null!;
+
     public string? PasswordHash { get; private set; } // Nullable, так как у Google-пользователей нет пароля
-    public Role Role { get; private set; }
+
+    public Role Role { get; private set; } = null!;
     public string? Address { get; private set; }
-    public string Region { get; private set; }
+    public string Region { get; private set; } = null!;
     public bool PhoneConfirmed { get; private set; }
 
     public string? AvatarUrl { get; private set; }
@@ -57,13 +56,13 @@ public class User
 
     // Stripe данные
     public string? StripeCustomerId { get; private set; }
-    public UserSubscription UserSubscription { get; set; }
+    public UserSubscription UserSubscription { get; set; } = null!;
 
     private readonly List<Order> _clientOrders = [];
     private readonly List<Order> _driverOrders = [];
     private readonly List<Review> _reviews = [];
     private readonly List<Vehicle> _vehicles = [];
-    
+
     public IReadOnlyCollection<Order> ClientOrders => _clientOrders.AsReadOnly();
     public IReadOnlyCollection<Order> DriverOrders => _driverOrders.AsReadOnly();
     public IReadOnlyCollection<Review> Reviews => _reviews.AsReadOnly();
@@ -115,6 +114,18 @@ public class User
         KazakhstanCity city)
     {
         return Order.CreateRentalOrder(id, Id, description, rentalStartDate, rentalEndDate, totalPrice, vehicleType, city, Region);
+    }        
+    
+    public Order CreateDriverRentalOrder(
+        Guid id,
+        string description,
+        DateTime rentalStartDate,
+        DateTime rentalEndDate,
+        decimal totalPrice,
+        VehicleType vehicleType,
+        KazakhstanCity city)
+    {
+        return Order.CreateDriverRentalOrder(id, Id, description, rentalStartDate, rentalEndDate, totalPrice, vehicleType, city, Region);
     }    
     
     public Order CreateFreightOrder(
@@ -172,9 +183,6 @@ public class User
         if (string.IsNullOrEmpty(StripeCustomerId))
             StripeCustomerId = customerId;
     }
-
-
-    
     public void SetAvatarUrl(string url)
     {
         if (string.IsNullOrWhiteSpace(url))

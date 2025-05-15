@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using TasAndJet.Domain.Entities.Account;
+﻿using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Domain.Entities.Enums;
 using TasAndJet.Domain.Entities.Reviews;
 using TasAndJet.Domain.Entities.Services;
@@ -26,7 +25,8 @@ public class Order
         DateTime? rentalStartDate,
         DateTime? rentalEndDate,
         decimal? cargoWeight,
-        string? cargoType)
+        string? cargoType,
+        bool isDriverOrder)
     {
         Id = id;
         ClientId = clientId;
@@ -45,6 +45,7 @@ public class Order
         RentalEndDate = rentalEndDate;
         CargoWeight = cargoWeight;
         CargoType = cargoType;
+        IsDriverOrder = isDriverOrder;
     }
 
     public Guid Id { get; private set; }
@@ -72,11 +73,12 @@ public class Order
     // Freight-specific
     public decimal? CargoWeight { get; private set; }
     public string? CargoType { get; private set; }
+    
+    public bool IsDriverOrder { get; set; }
 
     // Rental-specific
     public DateTime? RentalStartDate { get; private set; }
     public DateTime? RentalEndDate { get; private set; }
-    
     public List<string> ImageKeys { get; private set; } = [];
     
     
@@ -110,7 +112,8 @@ public class Order
             null,
             null,
             cargoWeight,
-            cargoType
+            cargoType,
+            false
         );
     }
 
@@ -141,14 +144,46 @@ public class Order
             rentalStartDate,
             rentalEndDate,
             null,
-            null
+            null,
+            false
+        );
+    }
+    public static Order CreateDriverRentalOrder(
+        Guid id,
+        Guid clientId,
+        string description,
+        DateTime rentalStartDate,
+        DateTime rentalEndDate,
+        decimal totalPrice,
+        VehicleType vehicleType,
+        KazakhstanCity city,
+        string region)
+    {
+        return new Order(
+            id,
+            clientId,
+            description,
+            null,
+            null,
+            DateTime.UtcNow,
+            OrderStatus.Created,
+            vehicleType,
+            city,
+            OrderType.Rental,
+            region,
+            totalPrice,
+            rentalStartDate,
+            rentalEndDate,
+            null,
+            null,
+            true
         );
     }
 
     // ========== Методы состояния ==========
     public void AddReview(Review review) => Review = review;
 
-    public void AssignDriver(Guid clientId, Guid driverId)
+    public void AssignDriver(Guid clientId, Guid? driverId)
     {
         if (Status != OrderStatus.Created)
             throw new InvalidOperationException("Водителя можно назначить только на новый заказ.");

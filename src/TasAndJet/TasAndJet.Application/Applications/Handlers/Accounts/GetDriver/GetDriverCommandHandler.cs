@@ -1,13 +1,11 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel.Common;
 using SharedKernel.Common.Api;
 using TasAndJet.Contracts.Dto;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Domain.Entities.Account;
 using TasAndJet.Infrastructure;
-using TasAndJet.Infrastructure.Providers;
 using TasAndJet.Infrastructure.Providers.Abstract;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.GetDriver;

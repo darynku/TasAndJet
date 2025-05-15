@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using TasAndJet.Application.Applications.Handlers.Accounts.Register;
+﻿using TasAndJet.Application.Applications.Handlers.Accounts.Register;
 using TasAndJet.Contracts.Data.Accounts;
-using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Tests.Accounts;
 

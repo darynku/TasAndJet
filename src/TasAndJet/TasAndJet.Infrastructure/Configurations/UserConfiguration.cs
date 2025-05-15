@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions.Internal;
 using TasAndJet.Domain.Entities.Account;
 
 namespace TasAndJet.Infrastructure.Configurations;

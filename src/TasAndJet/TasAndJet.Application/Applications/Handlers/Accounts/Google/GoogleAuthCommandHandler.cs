@@ -4,17 +4,12 @@ using Google.Apis.Auth;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using SharedKernel.Common;
 using SharedKernel.Common.Api;
-using TasAndJet.Application.Applications.Services.Accounts.UploadFile;
 using TasAndJet.Application.Events;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Domain.Entities.Account;
-using TasAndJet.Domain.Entities.Services;
 using TasAndJet.Infrastructure;
 using TasAndJet.Infrastructure.Providers.Abstract;
-using GoogleOptions = TasAndJet.Infrastructure.Options.GoogleOptions;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Google;
 

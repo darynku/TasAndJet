@@ -2,8 +2,6 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Logging;
-using SharedKernel.Common;
 using SharedKernel.Common.Api;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.VerifyCode;

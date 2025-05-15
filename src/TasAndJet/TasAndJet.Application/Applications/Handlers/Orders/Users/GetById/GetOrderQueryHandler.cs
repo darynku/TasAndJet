@@ -2,8 +2,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Common.Api;
-using SharedKernel.Common.Exceptions;
-using TasAndJet.Contracts.Response;
 using TasAndJet.Domain.Entities.Enums;
 using TasAndJet.Domain.Entities.Orders;
 using TasAndJet.Domain.Entities.Services;

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TasAndJet.Domain.Entities.Orders;
-using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Infrastructure.Configurations;
 

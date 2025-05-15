@@ -1,9 +1,7 @@
-﻿using System.Security.Authentication;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SharedKernel.Common;
 using SharedKernel.Common.Api;
 using TasAndJet.Contracts.Response;
 using TasAndJet.Infrastructure;

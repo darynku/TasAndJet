@@ -1,10 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using SharedKernel.Common;
 using SharedKernel.Common.Api;
 using TasAndJet.Contracts.Data.Accounts;
-using TasAndJet.Domain.Entities.Services;
 
 namespace TasAndJet.Application.Applications.Handlers.Accounts.Register;
 

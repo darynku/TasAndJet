@@ -1,5 +1,4 @@
-﻿using TasAndJet.Contracts.Dto;
-using TasAndJet.Domain.Entities.Account;
+﻿using TasAndJet.Domain.Entities.Account;
 
 namespace TasAndJet.Contracts.Response;
 

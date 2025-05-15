@@ -1,8 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
-using SharedKernel.Common;
 using SharedKernel.Common.Api;
-using TasAndJet.Contracts.Dto;
 using TasAndJet.Contracts.Response;
 
 

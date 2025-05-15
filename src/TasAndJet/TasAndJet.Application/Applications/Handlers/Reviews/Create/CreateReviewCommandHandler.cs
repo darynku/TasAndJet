@@ -1,9 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
-using SharedKernel.Common;
 using TasAndJet.Infrastructure;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Common.Api;

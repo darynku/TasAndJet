@@ -1,27 +1,14 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Paged;
-using TasAndJet.Domain.Entities;
+using Swashbuckle.AspNetCore.Annotations;
+using TasAndJet.Api.Controllers.Contracts.Notification;
 using TasAndJet.Infrastructure;
 
 namespace TasAndJet.Api.Controllers;
 
-public record ReadAllNotificationRequest(List<Guid> NotificationId);
-public record ReadNotificationRequest(Guid NotificationId);
 
-public record NotificationResponse(
-    Guid Id,
-    string Title,
-    string Message,
-    DateTime CreatedAt,
-    bool IsRead,
-    string Type,
-    string? Data
-);
-
-
+[SwaggerTag("Контроллер для работы с уведомлениями")]
 public class NotificationsController(ApplicationDbContext context) : ApplicationController
 {
     [HttpGet("{userId}/notifications")]
