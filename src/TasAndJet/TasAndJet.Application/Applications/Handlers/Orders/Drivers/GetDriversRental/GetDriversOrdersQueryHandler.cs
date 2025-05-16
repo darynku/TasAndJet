@@ -28,7 +28,7 @@ public class GetDriversOrdersQueryHandler(
         // Поиск по описанию
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
-            var searchLower = request.Search.ToLower();
+            var searchLower = request.Search?.ToLower();
             orderQuery = orderQuery.Where(o => o.Description.ToLower().Contains(searchLower));
         }
 
@@ -74,7 +74,7 @@ public class GetDriversOrdersQueryHandler(
                 OrderId = order.Id,
                 ClientId = order.ClientId,
                 DriverId = order.DriverId,
-                PhoneNumber = order.Driver!.PhoneNumber,
+                PhoneNumber = order.Driver?.PhoneNumber ?? string.Empty,
                 Description = order.Description,
                 PickupAddress = order.PickupAddress,
                 DestinationAddress = order.DestinationAddress,
